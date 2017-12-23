@@ -1,3 +1,9 @@
+libgpiod (0.3.2+git20171201-2) unstable; urgency=medium
+
+  * Fix corrupted long description in gpiod (Closes: #885031)
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sat, 23 Dec 2017 10:25:20 +0800
+
 libgpiod (0.3.2+git20171201-1) unstable; urgency=medium
 
   * Import new upstream (Closes: #881728)
