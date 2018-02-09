@@ -1,13 +1,15 @@
 /*
- * Test cases for the gpioget tool.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
  */
+
+/* Test cases for the gpioget program. */
 
 #include "gpiod-test.h"
 
@@ -33,9 +35,9 @@ static void gpioget_read_all_lines(void)
 
 	values[0] = values[1] = values[2] = values[3] = 1;
 
-	rv = gpiod_simple_set_value_multiple(TEST_CONSUMER, test_chip_name(1),
-					     offsets, values, 4, false,
-					     NULL, NULL);
+	rv = gpiod_ctxless_set_value_multiple(test_chip_name(1), offsets,
+					      values, 4, false, TEST_CONSUMER,
+					      NULL, NULL);
 	TEST_ASSERT_RET_OK(rv);
 
 	test_tool_run("gpioget", test_chip_name(1),
@@ -74,9 +76,9 @@ static void gpioget_read_all_lines_active_low(void)
 
 	values[0] = values[1] = values[2] = values[3] = 1;
 
-	rv = gpiod_simple_set_value_multiple(TEST_CONSUMER, test_chip_name(1),
-					     offsets, values, 4, false,
-					     NULL, NULL);
+	rv = gpiod_ctxless_set_value_multiple(test_chip_name(1), offsets,
+					      values, 4, false, TEST_CONSUMER,
+					      NULL, NULL);
 	TEST_ASSERT_RET_OK(rv);
 
 	test_tool_run("gpioget", "--active-low", test_chip_name(1),
@@ -114,9 +116,9 @@ static void gpioget_read_some_lines(void)
 
 	values[0] = values[1] = values[2] = 1;
 
-	rv = gpiod_simple_set_value_multiple(TEST_CONSUMER, test_chip_name(1),
-					     offsets, values, 3, false,
-					     NULL, NULL);
+	rv = gpiod_ctxless_set_value_multiple(test_chip_name(1), offsets,
+					      values, 3, false, TEST_CONSUMER,
+					      NULL, NULL);
 	TEST_ASSERT_RET_OK(rv);
 
 	test_tool_run("gpioget", test_chip_name(1),

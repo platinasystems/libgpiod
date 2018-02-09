@@ -1,7 +1,7 @@
 #
-# Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+# Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
 #
-# This library is free software; you can redistribute it and/or modify it
+# This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation; either version 2.1 of the License, or (at
 # your option) any later version.
@@ -9,7 +9,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT([libgpiod], 0.3.2)
+AC_INIT([libgpiod], 1.0)
 AC_SUBST(EXTRA_VERSION, [])
 
 AC_DEFINE_UNQUOTED([GPIOD_VERSION_STR],
@@ -48,10 +48,10 @@ AC_DEFUN([HEADER_NOT_FOUND_LIB],
 # This is always checked (library needs this)
 AC_HEADER_STDC
 AC_FUNC_MALLOC
-AC_FUNC_STRERROR_R
 AC_CHECK_FUNC([ioctl], [], [FUNC_NOT_FOUND_LIB([ioctl])])
 AC_CHECK_FUNC([asprintf], [], [FUNC_NOT_FOUND_LIB([asprintf])])
-AC_CHECK_FUNC([readdir], [], [FUNC_NOT_FOUND_LIB([readdir])])
+AC_CHECK_FUNC([scandir], [], [FUNC_NOT_FOUND_LIB([scandir])])
+AC_CHECK_FUNC([alphasort], [], [FUNC_NOT_FOUND_LIB([alphasort])])
 AC_CHECK_FUNC([ppoll], [], [FUNC_NOT_FOUND_LIB([ppoll])])
 AC_CHECK_HEADERS([getopt.h], [], [HEADER_NOT_FOUND_LIB([getopt.h])])
 AC_CHECK_HEADERS([dirent.h], [], [HEADER_NOT_FOUND_LIB([dirent.h])])
@@ -120,7 +120,8 @@ then
 	AC_MSG_NOTICE([doxygen not found - documentation cannot be generated])
 fi
 
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([libgpiod.pc
+		 Makefile
 		 include/Makefile
 		 src/Makefile
 		 src/lib/Makefile

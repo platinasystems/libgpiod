@@ -1,7 +1,7 @@
 #
-# Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+# Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
 #
-# This library is free software; you can redistribute it and/or modify it
+# This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation; either version 2.1 of the License, or (at
 # your option) any later version.
@@ -15,7 +15,7 @@ libtools_common_la_SOURCES = \
 	tools-common.c \
 	tools-common.h
 
-LDADD = libtools-common.la ../lib/libgpiod.la
+LDADD = libtools-common.la $(top_builddir)/src/lib/libgpiod.la
 
 bin_PROGRAMS = gpiodetect gpioinfo gpioget gpioset gpiomon gpiofind
 

@@ -1,9 +1,9 @@
 /*
- * List all GPIO chips.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -19,7 +19,7 @@
 static const struct option longopts[] = {
 	{ "help",	no_argument,	NULL,	'h' },
 	{ "version",	no_argument,	NULL,	'v' },
-	{ 0 },
+	{ GETOPT_NULL_LONGOPT },
 };
 
 static const char *const shortopts = "+hv";
@@ -38,8 +38,6 @@ int main(int argc, char **argv)
 	struct gpiod_chip_iter *iter;
 	struct gpiod_chip *chip;
 	int optc, opti;
-
-	set_progname(argv[0]);
 
 	for (;;) {
 		optc = getopt_long(argc, argv, shortopts, longopts, &opti);
@@ -71,10 +69,6 @@ int main(int argc, char **argv)
 		die_perror("unable to access GPIO chips");
 
 	gpiod_foreach_chip(iter, chip) {
-		if (gpiod_chip_iter_err(iter))
-			die_perror("error accessing gpiochip %s",
-				   gpiod_chip_iter_failed_chip(iter));
-
 		printf("%s [%s] (%u lines)\n",
 		       gpiod_chip_name(chip),
 		       gpiod_chip_label(chip),

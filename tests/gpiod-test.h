@@ -1,13 +1,15 @@
 /*
- * Testing framework for libgpiod.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
  */
+
+/* Testing framework - functions and definitions used by test cases. */
 
 #ifndef __GPIOD_TEST_H__
 #define __GPIOD_TEST_H__
@@ -91,8 +93,8 @@ enum {
  * or number by index corresponding with the order in which the mockup chips
  * were requested in the TEST_DEFINE() macro.
  */
-const char * test_chip_path(unsigned int index);
-const char * test_chip_name(unsigned int index);
+const char *test_chip_path(unsigned int index);
+const char *test_chip_name(unsigned int index);
 unsigned int test_chip_num(unsigned int index);
 
 enum {
@@ -106,8 +108,8 @@ void test_set_event(unsigned int chip_index, unsigned int line_offset,
 
 void test_tool_run(char *tool, ...);
 void test_tool_wait(void);
-const char * test_tool_stdout(void);
-const char * test_tool_stderr(void);
+const char *test_tool_stdout(void);
+const char *test_tool_stderr(void);
 bool test_tool_exited(void);
 int test_tool_exit_status(void);
 void test_tool_signal(int signum);
@@ -125,11 +127,18 @@ void test_tool_stdin_write(const char *fmt, ...) TEST_PRINTF(1, 2);
  * The functions below can be reused by different tests for common use cases.
  */
 void test_close_chip(struct gpiod_chip **chip);
-void test_free_str(char **str);
+void test_line_close_chip(struct gpiod_line **line);
 void test_free_chip_iter(struct gpiod_chip_iter **iter);
 void test_free_chip_iter_noclose(struct gpiod_chip_iter **iter);
+void test_free_line_iter(struct gpiod_line_iter **iter);
 
 bool test_regex_match(const char *str, const char *pattern);
+
+/*
+ * Return a custom string built according to printf() formatting rules. The
+ * returned string is valid until the next call to this routine.
+ */
+const char *test_build_str(const char *fmt, ...) TEST_PRINTF(1, 2);
 
 #define TEST_ASSERT(statement)						\
 	do {								\
@@ -142,11 +151,12 @@ bool test_regex_match(const char *str, const char *pattern);
 	} while (0)
 
 #define TEST_ASSERT_FALSE(statement)	TEST_ASSERT(!(statement))
-#define TEST_ASSERT_NOT_NULL(ptr)	TEST_ASSERT(ptr != NULL)
-#define TEST_ASSERT_RET_OK(status)	TEST_ASSERT(status == 0)
-#define TEST_ASSERT_NULL(ptr)		TEST_ASSERT(ptr == NULL)
-#define TEST_ASSERT_EQ(a1, a2)		TEST_ASSERT(a1 == a2)
-#define TEST_ASSERT_NOTEQ(a1, a2)	TEST_ASSERT(a1 != a2)
+#define TEST_ASSERT_NOT_NULL(ptr)	TEST_ASSERT((ptr) != NULL)
+#define TEST_ASSERT_RET_OK(status)	TEST_ASSERT((status) == 0)
+#define TEST_ASSERT_NULL(ptr)		TEST_ASSERT((ptr) == NULL)
+#define TEST_ASSERT_ERRNO_IS(errnum)	TEST_ASSERT(errno == (errnum))
+#define TEST_ASSERT_EQ(a1, a2)		TEST_ASSERT((a1) == (a2))
+#define TEST_ASSERT_NOTEQ(a1, a2)	TEST_ASSERT((a1) != (a2))
 #define TEST_ASSERT_STR_EQ(s1, s2)	TEST_ASSERT(strcmp(s1, s2) == 0)
 #define TEST_ASSERT_STR_CONTAINS(s, p)	TEST_ASSERT(strstr(s, p) != NULL)
 #define TEST_ASSERT_STR_NOTCONT(s, p)	TEST_ASSERT(strstr(s, p) == NULL)
