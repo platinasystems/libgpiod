@@ -1,12 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 /* Low-level, core library code. */
@@ -415,10 +411,11 @@ static int line_request_values(struct gpiod_line_bulk *bulk,
 
 	req.lines = gpiod_line_bulk_num_lines(bulk);
 
-	for (i = 0; i < gpiod_line_bulk_num_lines(bulk); i++) {
-		line = gpiod_line_bulk_get_line(bulk, i);
+	gpiod_line_bulk_foreach_line_off(bulk, line, i) {
 		req.lineoffsets[i] = gpiod_line_offset(line);
-		if (config->request_type == GPIOD_LINE_REQUEST_DIRECTION_OUTPUT)
+		if (config->request_type ==
+				GPIOD_LINE_REQUEST_DIRECTION_OUTPUT &&
+		    default_vals)
 			req.default_values[i] = !!default_vals[i];
 	}
 
@@ -701,16 +698,23 @@ int gpiod_line_event_wait_bulk(struct gpiod_line_bulk *bulk,
 	else if (rv == 0)
 		return 0;
 
-	if (event_bulk) {
+	if (event_bulk)
 		gpiod_line_bulk_init(event_bulk);
 
-		for (off = 0; off < num_lines; off++) {
-			if (fds[off].revents) {
+	for (off = 0; off < num_lines; off++) {
+		if (fds[off].revents) {
+			if (fds[off].revents & POLLNVAL) {
+				errno = EINVAL;
+				return -1;
+			}
+
+			if (event_bulk) {
 				line = gpiod_line_bulk_get_line(bulk, off);
 				gpiod_line_bulk_add(event_bulk, line);
-				if (!--rv)
-					break;
 			}
+
+			if (!--rv)
+				break;
 		}
 	}
 

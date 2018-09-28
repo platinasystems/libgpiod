@@ -1,12 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 /*
@@ -103,6 +99,45 @@ struct gpiod_chip *gpiod_chip_open_lookup(const char *descr)
 	return chip;
 }
 
+int gpiod_chip_get_lines(struct gpiod_chip *chip, unsigned int *offsets,
+			 unsigned int num_offsets, struct gpiod_line_bulk *bulk)
+{
+	struct gpiod_line *line;
+	unsigned int i;
+
+	gpiod_line_bulk_init(bulk);
+
+	for (i = 0; i < num_offsets; i++) {
+		line = gpiod_chip_get_line(chip, offsets[i]);
+		if (!line)
+			return -1;
+
+		gpiod_line_bulk_add(bulk, line);
+	}
+
+	return 0;
+}
+
+int gpiod_chip_get_all_lines(struct gpiod_chip *chip,
+			     struct gpiod_line_bulk *bulk)
+{
+	struct gpiod_line_iter *iter;
+	struct gpiod_line *line;
+
+	gpiod_line_bulk_init(bulk);
+
+	iter = gpiod_line_iter_new(chip);
+	if (!iter)
+		return -1;
+
+	gpiod_foreach_line(iter, line)
+		gpiod_line_bulk_add(bulk, line);
+
+	gpiod_line_iter_free(iter);
+
+	return 0;
+}
+
 struct gpiod_line *
 gpiod_chip_find_line(struct gpiod_chip *chip, const char *name)
 {
@@ -126,6 +161,25 @@ gpiod_chip_find_line(struct gpiod_chip *chip, const char *name)
 	gpiod_line_iter_free(iter);
 
 	return NULL;
+}
+
+int gpiod_chip_find_lines(struct gpiod_chip *chip,
+			  const char **names, struct gpiod_line_bulk *bulk)
+{
+	struct gpiod_line *line;
+	int i;
+
+	gpiod_line_bulk_init(bulk);
+
+	for (i = 0; names[i]; i++) {
+		line = gpiod_chip_find_line(chip, names[i]);
+		if (!line)
+			return -1;
+
+		gpiod_line_bulk_add(bulk, line);
+	}
+
+	return 0;
 }
 
 int gpiod_line_request_input(struct gpiod_line *line, const char *consumer)

@@ -1,10 +1,9 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+#
+# This file is part of libgpiod.
 #
 # Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
-#
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation; either version 2.1 of the License, or (at
-# your option) any later version.
 #
 
 AM_CFLAGS = -I$(top_srcdir)/include/ -include $(top_builddir)/config.h
@@ -38,7 +37,7 @@ check: check-am
 	@echo " ********************************************************"
 	@echo " * Tests have been built as tests/gpio-test.            *"
 	@echo " *                                                      *"
-	@echo " * They require linux kernel version >=v4.16 and the    *"
+	@echo " * They require a recent linux kernel version and the   *"
 	@echo " * gpio-mockup module (must not be built-in).           *"
 	@echo " *                                                      *"
 	@echo " * Run the test executable with superuser privileges or *"

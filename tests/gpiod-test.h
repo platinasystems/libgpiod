@@ -1,12 +1,8 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 /* Testing framework - functions and definitions used by test cases. */
@@ -131,6 +127,8 @@ void test_line_close_chip(struct gpiod_line **line);
 void test_free_chip_iter(struct gpiod_chip_iter **iter);
 void test_free_chip_iter_noclose(struct gpiod_chip_iter **iter);
 void test_free_line_iter(struct gpiod_line_iter **iter);
+
+#define TEST_CLEANUP_CHIP TEST_CLEANUP(test_close_chip)
 
 bool test_regex_match(const char *str, const char *pattern);
 

@@ -1,12 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 /* Iterator test cases. */
@@ -45,9 +41,9 @@ static void chip_iter_noclose(void)
 {
 	TEST_CLEANUP(test_free_chip_iter_noclose)
 			struct gpiod_chip_iter *iter = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipA = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipB = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipC = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipA = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipB = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipC = NULL;
 	struct gpiod_chip *chip;
 	bool A, B, C;
 
@@ -118,7 +114,7 @@ TEST_DEFINE(chip_iter_break,
 static void line_iter(void)
 {
 	TEST_CLEANUP(test_free_line_iter) struct gpiod_line_iter *iter = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	unsigned int i = 0;
 
