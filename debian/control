@@ -3,7 +3,6 @@ Section: misc
 Priority: optional
 Maintainer: SZ Lin (林上智) <szlin@debian.org>
 Build-Depends: debhelper (>= 11),
-               libstdc++-8-dev,
                autoconf-archive,
                automake,
                pkg-config,

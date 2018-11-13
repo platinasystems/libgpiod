@@ -1,8 +1,18 @@
+libgpiod (1.2-1) unstable; urgency=medium
+
+  * Import new upstream release
+  * d/libgpiod2.symbols:
+    - Update symbols with c++filt to fix 32-bit FTBFS issue (Closes: #913522)
+  * d/control:
+    - Drop unnecessary build-depends
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 13 Nov 2018 11:42:05 +0800
+
 libgpiod (1.1.1-2) unstable; urgency=medium
 
-  * Move version 1.1.1 to sid archive 
+  * Move version 1.1.1 to sid archive
 
- -- SZ Lin (林上智) <szlin@debian.org>  Tue, 06 Nov 2018 18:48:51 +0800
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 06 Nov 2018 18:57:31 +0800
 
 libgpiod (1.1.1-1) experimental; urgency=medium
 

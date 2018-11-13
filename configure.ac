@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT([libgpiod], 1.1.1)
+AC_INIT([libgpiod], 1.2)
 AC_SUBST(EXTRA_VERSION, [])
 
 AC_DEFINE_UNQUOTED([GPIOD_VERSION_STR],
@@ -20,7 +20,7 @@ AC_SUBST(VERSION_STR, [$PACKAGE_VERSION$EXTRA_VERSION])
 #
 # (...)
 # 3. If the library source code has changed at all since the last update, then
-#    increment revision (‘c:r:a’ becomes ‘c:r+1:a’).
+#    increment revision ('c:r:a' becomes 'c:r+1:a').
 # 4. If any interfaces have been added, removed, or changed since the last
 #    update, increment current, and set revision to 0.
 # 5. If any interfaces have been added since the last public release, then
@@ -29,7 +29,8 @@ AC_SUBST(VERSION_STR, [$PACKAGE_VERSION$EXTRA_VERSION])
 #    release, then set age to 0.
 #
 # Define the libtool version as (C.R.A):
-AC_SUBST(ABI_VERSION, [2.0.0])
+# NOTE: this version only applies to the core C library.
+AC_SUBST(ABI_VERSION, [3.0.1])
 # Have a separate ABI version for C++ bindings:
 AC_SUBST(ABI_CXX_VERSION, [1.0.0])
 
@@ -80,6 +81,7 @@ AC_CHECK_FUNC([ppoll], [], [FUNC_NOT_FOUND_LIB([ppoll])])
 AC_CHECK_HEADERS([getopt.h], [], [HEADER_NOT_FOUND_LIB([getopt.h])])
 AC_CHECK_HEADERS([dirent.h], [], [HEADER_NOT_FOUND_LIB([dirent.h])])
 AC_CHECK_HEADERS([sys/poll.h], [], [HEADER_NOT_FOUND_LIB([sys/poll.h])])
+AC_CHECK_HEADERS([sys/sysmacros.h], [], [HEADER_NOT_FOUND_LIB([sys/sysmacros.h])])
 AC_CHECK_HEADERS([linux/gpio.h], [], [HEADER_NOT_FOUND_LIB([linux/gpio.h])])
 
 AC_ARG_ENABLE([tools],
