@@ -1,3 +1,11 @@
+libgpiod (1.2-2) unstable; urgency=medium
+
+  * d/libgpiod2.symbols
+    - Fix symbols for s390x
+    - Fix symbols for armel
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Wed, 05 Dec 2018 13:46:32 +0800
+
 libgpiod (1.2-1) unstable; urgency=medium
 
   * Import new upstream release
