@@ -21,6 +21,8 @@ gpiosetcxx
 doc
 libgpiod.pc
 libgpiodcxx.pc
+*.tar.gz
+*.patch
 
 # autotools stuff
 .deps/
@@ -42,3 +44,6 @@ stamp-h1
 
 # unit tests
 gpiod-test
+
+# man pages
+*.man
