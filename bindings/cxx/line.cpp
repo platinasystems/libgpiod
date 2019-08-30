@@ -37,7 +37,7 @@ unsigned int line::offset(void) const
 
 	const char* name = ::gpiod_line_name(this->_m_line);
 
-	return ::std::move(name ? ::std::string(name) : ::std::string());
+	return name ? ::std::string(name) : ::std::string();
 }
 
 ::std::string line::consumer(void) const
@@ -46,7 +46,7 @@ unsigned int line::offset(void) const
 
 	const char* consumer = ::gpiod_line_consumer(this->_m_line);
 
-	return ::std::move(consumer ? ::std::string(consumer) : ::std::string());
+	return consumer ? ::std::string(consumer) : ::std::string();
 }
 
 int line::direction(void) const noexcept
@@ -147,7 +147,7 @@ bool line::event_wait(const ::std::chrono::nanoseconds& timeout) const
 
 	line_bulk event_bulk = bulk.event_wait(timeout);
 
-	return ::std::move(event_bulk);
+	return !!event_bulk;
 }
 
 line_event line::event_read(void) const
@@ -173,7 +173,7 @@ line_event line::event_read(void) const
 
 	event.source = *this;
 
-	return ::std::move(event);
+	return event;
 }
 
 int line::event_get_fd(void) const
@@ -183,8 +183,8 @@ int line::event_get_fd(void) const
 	int ret = ::gpiod_line_event_get_fd(this->_m_line);
 
 	if (ret < 0)
-		::std::system_error(errno, ::std::system_category(),
-				    "unable to get the line event file descriptor");
+		throw ::std::system_error(errno, ::std::system_category(),
+					  "unable to get the line event file descriptor");
 
 	return ret;
 }
@@ -236,7 +236,7 @@ line find_line(const ::std::string& name)
 			break;
 	}
 
-	return ::std::move(ret);
+	return ret;
 }
 
 } /* namespace gpiod */

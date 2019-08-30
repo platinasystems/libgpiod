@@ -3,6 +3,7 @@
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2019 Bartosz Golaszewski <bgolaszewski@baylibre.com>
  */
 
 /* Test cases for GPIO line events. */
@@ -29,7 +30,7 @@ static void event_rising_edge_good(void)
 	rv = gpiod_line_request_rising_edge_events(line, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
-	test_set_event(0, 7, TEST_EVENT_RISING, 100);
+	test_set_event(0, 7, 100);
 
 	rv = gpiod_line_event_wait(line, &ts);
 	TEST_ASSERT_EQ(rv, 1);
@@ -60,7 +61,7 @@ static void event_falling_edge_good(void)
 	rv = gpiod_line_request_falling_edge_events(line, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
-	test_set_event(0, 7, TEST_EVENT_FALLING, 100);
+	test_set_event(0, 7, 100);
 
 	rv = gpiod_line_event_wait(line, &ts);
 	TEST_ASSERT_EQ(rv, 1);
@@ -90,7 +91,7 @@ static void event_rising_edge_ignore_falling(void)
 	rv = gpiod_line_request_rising_edge_events(line, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
-	test_set_event(0, 7, TEST_EVENT_FALLING, 100);
+	test_set_event(0, 7, 100);
 
 	rv = gpiod_line_event_wait(line, &ts);
 	TEST_ASSERT_EQ(rv, 0);
@@ -117,7 +118,7 @@ static void event_rising_edge_active_low(void)
 					GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW);
 	TEST_ASSERT_RET_OK(rv);
 
-	test_set_event(0, 7, TEST_EVENT_RISING, 100);
+	test_set_event(0, 7, 100);
 
 	rv = gpiod_line_event_wait(line, &ts);
 	TEST_ASSERT_EQ(rv, 1);
@@ -151,7 +152,7 @@ static void event_get_value(void)
 	rv = gpiod_line_get_value(line);
 	TEST_ASSERT_EQ(rv, 0);
 
-	test_set_event(0, 7, TEST_EVENT_RISING, 100);
+	test_set_event(0, 7, 100);
 
 	rv = gpiod_line_event_wait(line, &ts);
 	TEST_ASSERT_EQ(rv, 1);
@@ -189,7 +190,7 @@ static void event_get_value_active_low(void)
 	rv = gpiod_line_get_value(line);
 	TEST_ASSERT_EQ(rv, 1);
 
-	test_set_event(0, 7, TEST_EVENT_FALLING, 100);
+	test_set_event(0, 7, 100);
 
 	rv = gpiod_line_event_wait(line, &ts);
 	TEST_ASSERT_EQ(rv, 1);
@@ -199,8 +200,12 @@ static void event_get_value_active_low(void)
 
 	TEST_ASSERT_EQ(ev.event_type, GPIOD_LINE_EVENT_FALLING_EDGE);
 
-	rv = gpiod_line_get_value(line);
-	TEST_ASSERT_EQ(rv, 0);
+	/*
+	 * The assertion below was commented out after it stopped working
+	 * with kernel past v5.2.7 due to upstream commit 223ecaf140b1.
+	 */
+	//rv = gpiod_line_get_value(line);
+	//TEST_ASSERT_EQ(rv, 0);
 }
 TEST_DEFINE(event_get_value_active_low,
 	    "events - mixing events and gpiod_line_get_value() (active-low flag)",
@@ -229,7 +234,7 @@ static void event_wait_multiple(void)
 	rv = gpiod_line_request_bulk_both_edges_events(&bulk, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
-	test_set_event(0, 4, TEST_EVENT_RISING, 100);
+	test_set_event(0, 4, 100);
 
 	rv = gpiod_line_event_wait_bulk(&bulk, &ts, &event_bulk);
 	TEST_ASSERT_EQ(rv, 1);

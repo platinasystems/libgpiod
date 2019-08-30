@@ -1,3 +1,36 @@
+libgpiod v1.4.1
+===============
+
+Bug fixes:
+- fix GCC8 warnings when building python bindings
+- fix a bug in gpioinfo where lines used by the kernel without any consumer
+  string were reported as unused
+- fix a bug in line::event_get_fd() in C++ bindings where the exception
+  wouldn't be throws in error cases due to a missing 'throw' keyword
+- fix a couple bugs in the test-suite
+- disable a failing assertion in the test-suite that stopped working after
+  linux v5.2.7
+
+libgpiod v1.4
+=============
+
+New features:
+- updated the testing framework to work with linux v5.1 in which the debugfs
+  interface of the GPIO testing module changed in a backward incompatible way
+- factored out the code controlling the GPIO testing module into a separate
+  shared library that may be reused by future testing executables for different
+  language bindings
+- removed the --enable-install-tests build option and the make check target as
+  they were redundant, subsequently tests are now installed as a normal program
+  whenever they're enabled with --enable-tests
+
+Improvements:
+- removed unnecessary std::move calls from C++ bindings
+- added the explicit keyword to bool() operators in C++ bindings
+
+Bug fixes:
+- fix out of source build of man pages
+
 libgpiod v1.3
 =============
 
