@@ -1,3 +1,9 @@
+libgpiod (1.4.1-2) unstable; urgency=medium
+
+  * Fix FTBFS in armel
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Sat, 31 Aug 2019 21:25:57 +0800
+
 libgpiod (1.4.1-1) unstable; urgency=high
 
   * Import new upstream release

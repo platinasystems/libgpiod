@@ -204,5 +204,5 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++|arch= armel riscv64)"typeinfo name for std::_Mutex_base<(__gnu_cxx::_Lock_policy)1>@Base" 1.2
  (c++|arch= armel riscv64)"typeinfo name for std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)1>@Base" 1.2
  (c++|arch= i386 armel mipsel armhf s390x)"std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > >::map(std::initializer_list<std::pair<int const, int> >, std::less<int> const&, std::allocator<std::pair<int const, int> > const&)@Base" 1.3
- (c++| arch = i386)"std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()@Base" 1.4.1
- (c++| arch = i386)"typeinfo name for std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>@Base" 1.4.1
+ (c++|arch= !armel !riscv64)"std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()@Base" 1.4.1
+ (c++|arch= !armel !riscv64)"typeinfo name for std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>@Base" 1.4.1
