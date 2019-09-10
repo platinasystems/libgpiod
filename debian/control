@@ -2,7 +2,7 @@ Source: libgpiod
 Section: misc
 Priority: optional
 Maintainer: SZ Lin (林上智) <szlin@debian.org>
-Build-Depends: debhelper (>= 12),
+Build-Depends: debhelper-compat (= 12),
                autoconf-archive,
                automake,
                help2man,
