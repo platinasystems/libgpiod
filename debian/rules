@@ -9,12 +9,17 @@ DEB_HOST_ARCH_OS  ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_ARCH_CPU ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 %:
+ifeq ($(filter nopython,$(DEB_BUILD_PROFILES)),)
 	dh $@ --with python3 --exclude=.la
+else
+	dh $@ --exclude=.la
+endif
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--enable-tools=yes \
-		--enable-bindings-python --enable-bindings-cxx \
+		--$(if $(filter nopython,$(DEB_BUILD_PROFILES)),dis,en)able-bindings-python \
+		--enable-bindings-cxx \
 		$(NULL)
 
 # Architecture: all only: build the doxygen documentation

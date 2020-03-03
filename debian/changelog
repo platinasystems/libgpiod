@@ -1,3 +1,20 @@
+libgpiod (1.4.1-4) unstable; urgency=medium
+
+  * Fix symbols disappeared on s390x - Thanks to Gianfranco Costamagna
+    <locutusofborg@debian.org> (Closes: #949958)
+  * Add Multi-Arch attribute - Thanks to Helmut Grohne <helmut@subdivi.de>
+    (Closes: #951196)
+  * Support nopython build profile to avoid FTFBS issue - This patch was
+    tweaked from Helmut Grohne <helmut@subdivi.de>. Thanks the report from
+    Michael Hudson-Doyle (Closes:#949919, #951197)
+  * d/control:
+    - Bump Standards-Version to 4.5.0
+    - Set Rules-Requires-Root: no
+  * d/watch:
+    - Ignore watching on rc version
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Tue, 03 Mar 2020 21:46:43 +0800
+
 libgpiod (1.4.1-3) unstable; urgency=medium
 
   * d/control:
