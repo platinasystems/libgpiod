@@ -142,6 +142,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATCH2_CFLAGS = @CATCH2_CFLAGS@
+CATCH2_LIBS = @CATCH2_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -164,6 +166,8 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 EXTRA_VERSION = @EXTRA_VERSION@
 FGREP = @FGREP@
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
 GREP = @GREP@
 HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
@@ -243,8 +247,10 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+has_bats = @has_bats@
 has_doxygen = @has_doxygen@
 has_help2man = @has_help2man@
+has_python_config = @has_python_config@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -278,12 +284,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-EXTRA_DIST = gpiod_tests.py \
-		gpiodetect.py \
-		gpiofind.py \
-		gpioget.py \
-		gpioinfo.py \
-		gpiomon.py \
+EXTRA_DIST = \
+		gpiodetect.py		\
+		gpiofind.py		\
+		gpioget.py		\
+		gpioinfo.py		\
+		gpiomon.py		\
 		gpioset.py
 
 all: all-am

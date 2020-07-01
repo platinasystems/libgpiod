@@ -98,6 +98,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@WITH_TESTS_TRUE@am__append_1 = tests
 subdir = bindings/cxx
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -237,7 +238,7 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = . examples tests
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/libgpiodcxx.pc.in \
 	$(top_srcdir)/autostuff/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -278,6 +279,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATCH2_CFLAGS = @CATCH2_CFLAGS@
+CATCH2_LIBS = @CATCH2_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -300,6 +303,8 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 EXTRA_VERSION = @EXTRA_VERSION@
 FGREP = @FGREP@
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
 GREP = @GREP@
 HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
@@ -379,8 +384,10 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+has_bats = @has_bats@
 has_doxygen = @has_doxygen@
 has_help2man = @has_help2man@
+has_python_config = @has_python_config@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -423,7 +430,7 @@ libgpiodcxx_la_LDFLAGS = -version-info $(subst .,:,$(ABI_CXX_VERSION)) \
 include_HEADERS = gpiod.hpp
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libgpiodcxx.pc
-SUBDIRS = . examples
+SUBDIRS = . examples $(am__append_1)
 all: all-recursive
 
 .SUFFIXES:

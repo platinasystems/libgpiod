@@ -1,3 +1,17 @@
+libgpiod (1.5.1-1) unstable; urgency=medium
+
+  * Import new upstream release
+  * Add salsa-ci.yml for enabling CI function in Salsa
+  * Update symbol table
+  * d/control:
+    - Bump debhelper-compat to 13
+  * d/copyright:
+    - Correct copyright information
+  * d/rules:
+    - Remove unneeded declaration
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Wed, 01 Jul 2020 11:27:41 +0800
+
 libgpiod (1.4.1-4) unstable; urgency=medium
 
   * Fix symbols disappeared on s390x - Thanks to Gianfranco Costamagna

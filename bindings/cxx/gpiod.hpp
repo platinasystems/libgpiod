@@ -233,6 +233,12 @@ struct line_request
 	/**< The line is an open-source port. */
 	GPIOD_API static const ::std::bitset<32> FLAG_OPEN_DRAIN;
 	/**< The line is an open-drain port. */
+	GPIOD_API static const ::std::bitset<32> FLAG_BIAS_DISABLE;
+	/**< The line has neither pull-up nor pull-down resistor enabled. */
+	GPIOD_API static const ::std::bitset<32> FLAG_BIAS_PULL_DOWN;
+	/**< The line has a configurable pull-down resistor enabled. */
+	GPIOD_API static const ::std::bitset<32> FLAG_BIAS_PULL_UP;
+	/**< The line has a configurable pull-up resistor enabled. */
 
 	::std::string consumer;
 	/**< Consumer name to pass to the request. */
@@ -312,13 +318,19 @@ public:
 	 * @brief Get current direction of this line.
 	 * @return Current direction setting.
 	 */
-	GPIOD_API int direction(void) const noexcept;
+	GPIOD_API int direction(void) const;
 
 	/**
 	 * @brief Get current active state of this line.
 	 * @return Current active state setting.
 	 */
-	GPIOD_API int active_state(void) const noexcept;
+	GPIOD_API int active_state(void) const;
+
+	/**
+	 * @brief Get current bias of this line.
+	 * @return Current bias setting.
+	 */
+	GPIOD_API int bias(void) const;
 
 	/**
 	 * @brief Check if this line is used by the kernel or other user space
@@ -370,6 +382,32 @@ public:
 	GPIOD_API void set_value(int val) const;
 
 	/**
+	 * @brief Set configuration of this line.
+	 * @param direction New direction.
+	 * @param flags Replacement flags.
+	 * @param value New value (0 or 1) - only matters for OUTPUT direction.
+	 */
+	GPIOD_API void set_config(int direction, ::std::bitset<32> flags,
+				  int value = 0) const;
+
+	/**
+	 * @brief Set configuration flags of this line.
+	 * @param flags Replacement flags.
+	 */
+	GPIOD_API void set_flags(::std::bitset<32> flags) const;
+
+	/**
+	 * @brief Change the direction this line to input.
+	 */
+	GPIOD_API void set_direction_input() const;
+
+	/**
+	 * @brief Change the direction this lines to output.
+	 * @param value New value (0 or 1).
+	 */
+	GPIOD_API void set_direction_output(int value = 0) const;
+
+	/**
 	 * @brief Wait for an event on this line.
 	 * @param timeout Time to wait before returning if no event occurred.
 	 * @return True if an event occurred and can be read, false if the wait
@@ -384,6 +422,12 @@ public:
 	GPIOD_API line_event event_read(void) const;
 
 	/**
+	 * @brief Read multiple line events.
+	 * @return Vector of line event objects.
+	 */
+	GPIOD_API ::std::vector<line_event> event_read_multiple(void) const;
+
+	/**
 	 * @brief Get the event file descriptor associated with this line.
 	 * @return File descriptor number.
 	 */
@@ -394,6 +438,11 @@ public:
 	 * @return Reference to the parent chip object.
 	 */
 	GPIOD_API const chip& get_chip(void) const;
+
+	/**
+	 * @brief Re-read the line info from the kernel.
+	 */
+	GPIOD_API void update(void) const;
 
 	/**
 	 * @brief Reset the state of this object.
@@ -451,11 +500,26 @@ public:
 		/**< Line's active state is high. */
 	};
 
+	/**
+	 * @brief Possible bias settings.
+	 */
+	enum : int {
+		BIAS_AS_IS = 1,
+		/**< Line's bias state is unknown. */
+		BIAS_DISABLE,
+		/**< Line's internal bias is disabled. */
+		BIAS_PULL_UP,
+		/**< Line's internal pull-up bias is enabled. */
+		BIAS_PULL_DOWN,
+		/**< Line's internal pull-down bias is enabled. */
+	};
+
 private:
 
 	line(::gpiod_line* line, const chip& owner);
 
 	void throw_if_null(void) const;
+	line_event make_line_event(const ::gpiod_line_event& event) const noexcept;
 
 	::gpiod_line* _m_line;
 	chip _m_chip;
@@ -613,14 +677,43 @@ public:
 	/**
 	 * @brief Set values of all lines held by this object.
 	 * @param values Vector of values to set. Must be the same size as the
-	 *        number of lines held by this line_bulk.
+	 *               number of lines held by this line_bulk.
 	 */
 	GPIOD_API void set_values(const ::std::vector<int>& values) const;
 
 	/**
+	 * @brief Set configuration of all lines held by this object.
+	 * @param direction New direction.
+	 * @param flags Replacement flags.
+	 * @param values Vector of values to set. Must be the same size as the
+	 *               number of lines held by this line_bulk.
+	 *               Only relevant for output direction requests.
+	 */
+	GPIOD_API void set_config(int direction, ::std::bitset<32> flags,
+				  const ::std::vector<int> values = std::vector<int>()) const;
+
+	/**
+	 * @brief Set configuration flags of all lines held by this object.
+	 * @param flags Replacement flags.
+	 */
+	GPIOD_API void set_flags(::std::bitset<32> flags) const;
+
+	/**
+	 * @brief Change the direction all lines held by this object to input.
+	 */
+	GPIOD_API void set_direction_input() const;
+
+	/**
+	 * @brief Change the direction all lines held by this object to output.
+	 * @param values Vector of values to set. Must be the same size as the
+	 *               number of lines held by this line_bulk.
+	 */
+	GPIOD_API void set_direction_output(const ::std::vector<int>& values) const;
+
+	/**
 	 * @brief Poll the set of lines for line events.
 	 * @param timeout Number of nanoseconds to wait before returning an
-	 *        empty line_bulk.
+	 *                empty line_bulk.
 	 * @return Returns a line_bulk object containing lines on which events
 	 *         occurred.
 	 */

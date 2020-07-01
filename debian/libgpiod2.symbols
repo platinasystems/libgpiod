@@ -22,19 +22,28 @@ libgpiod.so.2 libgpiod2 #MINVER#
  gpiod_ctxless_event_loop@Base 1.1
  gpiod_ctxless_event_loop_multiple@Base 1.1
  gpiod_ctxless_event_monitor@Base 1.2
+ gpiod_ctxless_event_monitor_ext@Base 1.5.1
  gpiod_ctxless_event_monitor_multiple@Base 1.2
+ gpiod_ctxless_event_monitor_multiple_ext@Base 1.5.1
  gpiod_ctxless_find_line@Base 1.1
  gpiod_ctxless_get_value@Base 1.1
+ gpiod_ctxless_get_value_ext@Base 1.5.1
  gpiod_ctxless_get_value_multiple@Base 1.1
+ gpiod_ctxless_get_value_multiple_ext@Base 1.5.1
  gpiod_ctxless_set_value@Base 1.1
+ gpiod_ctxless_set_value_ext@Base 1.5.1
  gpiod_ctxless_set_value_multiple@Base 1.1
+ gpiod_ctxless_set_value_multiple_ext@Base 1.5.1
  gpiod_line_active_state@Base 1.1
+ gpiod_line_bias@Base 1.5.1
  gpiod_line_close_chip@Base 1.1
  gpiod_line_consumer@Base 1.1
  gpiod_line_direction@Base 1.1
  gpiod_line_event_get_fd@Base 1.1
  gpiod_line_event_read@Base 1.1
  gpiod_line_event_read_fd@Base 1.1
+ gpiod_line_event_read_fd_multiple@Base 1.5.1
+ gpiod_line_event_read_multiple@Base 1.5.1
  gpiod_line_event_wait@Base 1.1
  gpiod_line_event_wait_bulk@Base 1.1
  gpiod_line_find@Base 1.1
@@ -77,6 +86,14 @@ libgpiod.so.2 libgpiod2 #MINVER#
  gpiod_line_request_output_flags@Base 1.1
  gpiod_line_request_rising_edge_events@Base 1.1
  gpiod_line_request_rising_edge_events_flags@Base 1.1
+ gpiod_line_set_config@Base 1.5.1
+ gpiod_line_set_config_bulk@Base 1.5.1
+ gpiod_line_set_direction_input@Base 1.5.1
+ gpiod_line_set_direction_input_bulk@Base 1.5.1
+ gpiod_line_set_direction_output@Base 1.5.1
+ gpiod_line_set_direction_output_bulk@Base 1.5.1
+ gpiod_line_set_flags@Base 1.5.1
+ gpiod_line_set_flags_bulk@Base 1.5.1
  gpiod_line_set_value@Base 1.1
  gpiod_line_set_value_bulk@Base 1.1
  gpiod_line_update@Base 1.1
@@ -85,6 +102,9 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++)"gpiod::line_request::FLAG_ACTIVE_LOW@Base" 1.1
  (c++)"gpiod::line_request::FLAG_OPEN_DRAIN@Base" 1.1
  (c++)"gpiod::line_request::FLAG_OPEN_SOURCE@Base" 1.1
+ (c++)"gpiod::line_request::FLAG_BIAS_DISABLE@Base" 1.5.1
+ (c++)"gpiod::line_request::FLAG_BIAS_PULL_UP@Base" 1.5.1
+ (c++)"gpiod::line_request::FLAG_BIAS_PULL_DOWN@Base" 1.5.1
  (c++)"gpiod::make_chip_iter()@Base" 1.1
  (c++)"gpiod::end(gpiod::chip_iter const&)@Base" 1.1
  (c++)"gpiod::end(gpiod::line_iter const&)@Base" 1.1
@@ -129,13 +149,20 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++)"gpiod::line::event_read() const@Base" 1.1
  (c++|arch-bits=64)"gpiod::line::event_wait(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) const@Base" 1.1
  (c++|arch-bits=32)"gpiod::line::event_wait(std::chrono::duration<long long, std::ratio<1ll, 1000000000ll> > const&) const@Base" 1.1
+ (c++|arch-bits=64)"gpiod::line::set_config(int, std::bitset<32ul>, int) const@Base" 1.5.1
+ (c++|arch-bits=32)"gpiod::line::set_config(int, std::bitset<32u>, int) const@Base" 1.5.1
  (c++)"gpiod::line::active_state() const@Base" 1.1
  (c++)"gpiod::line::event_get_fd() const@Base" 1.1
  (c++)"gpiod::line::is_requested() const@Base" 1.1
  (c++)"gpiod::line::is_open_drain() const@Base" 1.1
  (c++)"gpiod::line::is_open_source() const@Base" 1.1
+ (c++)"gpiod::line::event_read_multiple() const@Base" 1.5.1
+ (c++)"gpiod::line::set_direction_input() const@Base" 1.5.1
+ (c++)"gpiod::line::set_direction_output(int) const@Base" 1.5.1
+ (c++)"gpiod::line::bias() const@Base" 1.5.1
  (c++)"gpiod::line::name[abi:cxx11]() const@Base" 1.1
  (c++)"gpiod::line::offset() const@Base" 1.1
+ (c++)"gpiod::line::update() const@Base" 1.5.1
  (c++)"gpiod::line::is_used() const@Base" 1.1
  (c++)"gpiod::line::release() const@Base" 1.1
  (c++)"gpiod::line::request(gpiod::line_request const&, int) const@Base" 1.1
@@ -143,6 +170,8 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++)"gpiod::line::get_chip() const@Base" 1.1
  (c++)"gpiod::line::direction() const@Base" 1.1
  (c++)"gpiod::line::get_value() const@Base" 1.1
+ (c++|arch-bits=64)"gpiod::line::set_flags(std::bitset<32ul>) const@Base" 1.5.1
+ (c++|arch-bits=32)"gpiod::line::set_flags(std::bitset<32u>) const@Base" 1.5.1
  (c++)"gpiod::line::set_value(int) const@Base" 1.1
  (c++)"gpiod::line::operator bool() const@Base" 1.1
  (c++)"gpiod::line::operator==(gpiod::line const&) const@Base" 1.1
@@ -155,7 +184,11 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++|arch-bits=64)"gpiod::line_bulk::event_wait(std::chrono::duration<long, std::ratio<1l, 1000000000l> > const&) const@Base" 1.1
  (c++|arch-bits=32)"gpiod::line_bulk::event_wait(std::chrono::duration<long long, std::ratio<1ll, 1000000000ll> > const&) const@Base" 1.1
  (c++)"gpiod::line_bulk::get_values() const@Base" 1.1
+ (c++|arch-bits=64)"gpiod::line_bulk::set_config(int, std::bitset<32ul>, std::vector<int, std::allocator<int> >) const@Base" 1.5.1
+ (c++|arch-bits=32)"gpiod::line_bulk::set_config(int, std::bitset<32u>, std::vector<int, std::allocator<int> >) const@Base" 1.5.1
  (c++)"gpiod::line_bulk::set_values(std::vector<int, std::allocator<int> > const&) const@Base" 1.1
+ (c++)"gpiod::line_bulk::set_direction_input() const@Base" 1.5.1
+ (c++)"gpiod::line_bulk::set_direction_output(std::vector<int, std::allocator<int> > const&) const@Base" 1.5.1
  (c++)"gpiod::line_bulk::size() const@Base" 1.1
  (c++)"gpiod::line_bulk::empty() const@Base" 1.1
  (c++)"gpiod::line_bulk::release() const@Base" 1.1
@@ -164,6 +197,8 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++)"gpiod::line_bulk::iterator::operator==(gpiod::line_bulk::iterator const&) const@Base" 1.1
  (c++)"gpiod::line_bulk::iterator::operator!=(gpiod::line_bulk::iterator const&) const@Base" 1.1
  (c++)"gpiod::line_bulk::iterator::operator->() const@Base" 1.1
+ (c++|arch-bits=64)"gpiod::line_bulk::set_flags(std::bitset<32ul>) const@Base" 1.5.1
+ (c++|arch-bits=32)"gpiod::line_bulk::set_flags(std::bitset<32u>) const@Base" 1.5.1
  (c++)"gpiod::line_bulk::operator bool() const@Base" 1.1
  (c++)"gpiod::line_bulk::operator!() const@Base" 1.1
  (c++)"gpiod::line_iter::operator*() const@Base" 1.1
@@ -177,14 +212,11 @@ libgpiodcxx.so.1 libgpiod2 #MINVER#
  (c++)"std::_Function_base::_Base_manager<gpiod_chip* (*)(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)>::_M_manager(std::_Any_data&, std::_Any_data const&, std::_Manager_operation)@Base" 1.1
  (c++|arch= !armel !riscv64)"std::_Sp_counted_ptr<decltype(nullptr), (__gnu_cxx::_Lock_policy)2>::_M_dispose()@Base" 1.1
  (c++|arch= !armel !riscv64)"std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_destroy()@Base" 1.1
+ (c++)"std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release()@Base" 1.4.1
  (c++)"std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > >::~map()@Base" 1.1
  (c++)"std::map<int, int, std::less<int>, std::allocator<std::pair<int const, int> > >::~map()@Base" 1.1
- (c++|arch-bits=64)"std::bitset<32ul>::bitset<char>(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::size_type, char, char)@Base" 1.1
- (c++|arch-bits=32)"std::bitset<32u>::bitset<char>(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::size_type, char, char)@Base" 1.1
- (c++|arch-bits=64)"std::bitset<32ul>::bitset<char>(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::size_type, char, char)@Base" 1.1
- (c++|arch-bits=32)"std::bitset<32u>::bitset<char>(char const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::size_type, char, char)@Base" 1.1
- (c++|optional)"std::vector<int, std::allocator<int> >::_M_default_append(unsigned long)@Base" 1.1
- (c++|optional)"std::vector<int, std::allocator<int> >::_M_default_append(unsigned int)@Base" 1.1
+ (c++|optional|arch-bits=64)"std::vector<int, std::allocator<int> >::_M_default_append(unsigned long)@Base" 1.1
+ (c++|optional|arch-bits=32)"std::vector<int, std::allocator<int> >::_M_default_append(unsigned int)@Base" 1.5.1
  (c++|optional)"void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char const*>(char const*, char const*, std::forward_iterator_tag)@Base" 1.1
  (c++|optional)"std::_Rb_tree<int, std::pair<int const, int>, std::_Select1st<std::pair<int const, int> >, std::less<int>, std::allocator<std::pair<int const, int> > >::_M_get_insert_unique_pos(int const&)@Base" 1.1
  (c++|arch=amd64 arm64 ppc64el mips64el riscv64)"std::_Rb_tree<int, std::pair<int const, int>, std::_Select1st<std::pair<int const, int> >, std::less<int>, std::allocator<std::pair<int const, int> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<int const, int> >, int const&)@Base" 1.1

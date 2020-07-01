@@ -2,11 +2,6 @@
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
-export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
-
-# Some variables:
-DEB_HOST_ARCH_OS  ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
-DEB_HOST_ARCH_CPU ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
 
 %:
 ifeq ($(filter nopython,$(DEB_BUILD_PROFILES)),)

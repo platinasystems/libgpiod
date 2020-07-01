@@ -8,7 +8,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = include lib bindings
+SUBDIRS = include lib
 
 if WITH_TOOLS
 
@@ -21,6 +21,10 @@ if WITH_TESTS
 SUBDIRS += tests
 
 endif
+
+# Build bindings after core tests. When building tests for bindings, we need
+# libgpiomockup to be already present.
+SUBDIRS += bindings
 
 if HAS_DOXYGEN
 
@@ -36,6 +40,3 @@ clean-local:
 EXTRA_DIST = Doxyfile
 
 endif
-
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libgpiod.pc

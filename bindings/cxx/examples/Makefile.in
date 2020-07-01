@@ -21,6 +21,7 @@
 #
 # Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
 #
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -95,9 +96,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = gpiod_cxx_tests$(EXEEXT) gpiodetectcxx$(EXEEXT) \
-	gpiofindcxx$(EXEEXT) gpiogetcxx$(EXEEXT) gpioinfocxx$(EXEEXT) \
-	gpiomoncxx$(EXEEXT) gpiosetcxx$(EXEEXT)
+noinst_PROGRAMS = gpiodetectcxx$(EXEEXT) gpiofindcxx$(EXEEXT) \
+	gpiogetcxx$(EXEEXT) gpioinfocxx$(EXEEXT) gpiomoncxx$(EXEEXT) \
+	gpiosetcxx$(EXEEXT)
 subdir = bindings/cxx/examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -111,16 +112,14 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am_gpiod_cxx_tests_OBJECTS = gpiod_cxx_tests.$(OBJEXT)
-gpiod_cxx_tests_OBJECTS = $(am_gpiod_cxx_tests_OBJECTS)
-gpiod_cxx_tests_LDADD = $(LDADD)
+PROGRAMS = $(noinst_PROGRAMS)
+am_gpiodetectcxx_OBJECTS = gpiodetectcxx.$(OBJEXT)
+gpiodetectcxx_OBJECTS = $(am_gpiodetectcxx_OBJECTS)
+gpiodetectcxx_LDADD = $(LDADD)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_gpiodetectcxx_OBJECTS = gpiodetectcxx.$(OBJEXT)
-gpiodetectcxx_OBJECTS = $(am_gpiodetectcxx_OBJECTS)
-gpiodetectcxx_LDADD = $(LDADD)
 am_gpiofindcxx_OBJECTS = gpiofindcxx.$(OBJEXT)
 gpiofindcxx_OBJECTS = $(am_gpiofindcxx_OBJECTS)
 gpiofindcxx_LDADD = $(LDADD)
@@ -151,10 +150,10 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/autostuff/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/gpiod_cxx_tests.Po \
-	./$(DEPDIR)/gpiodetectcxx.Po ./$(DEPDIR)/gpiofindcxx.Po \
-	./$(DEPDIR)/gpiogetcxx.Po ./$(DEPDIR)/gpioinfocxx.Po \
-	./$(DEPDIR)/gpiomoncxx.Po ./$(DEPDIR)/gpiosetcxx.Po
+am__depfiles_remade = ./$(DEPDIR)/gpiodetectcxx.Po \
+	./$(DEPDIR)/gpiofindcxx.Po ./$(DEPDIR)/gpiogetcxx.Po \
+	./$(DEPDIR)/gpioinfocxx.Po ./$(DEPDIR)/gpiomoncxx.Po \
+	./$(DEPDIR)/gpiosetcxx.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -174,14 +173,12 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(gpiod_cxx_tests_SOURCES) $(gpiodetectcxx_SOURCES) \
-	$(gpiofindcxx_SOURCES) $(gpiogetcxx_SOURCES) \
-	$(gpioinfocxx_SOURCES) $(gpiomoncxx_SOURCES) \
-	$(gpiosetcxx_SOURCES)
-DIST_SOURCES = $(gpiod_cxx_tests_SOURCES) $(gpiodetectcxx_SOURCES) \
-	$(gpiofindcxx_SOURCES) $(gpiogetcxx_SOURCES) \
-	$(gpioinfocxx_SOURCES) $(gpiomoncxx_SOURCES) \
-	$(gpiosetcxx_SOURCES)
+SOURCES = $(gpiodetectcxx_SOURCES) $(gpiofindcxx_SOURCES) \
+	$(gpiogetcxx_SOURCES) $(gpioinfocxx_SOURCES) \
+	$(gpiomoncxx_SOURCES) $(gpiosetcxx_SOURCES)
+DIST_SOURCES = $(gpiodetectcxx_SOURCES) $(gpiofindcxx_SOURCES) \
+	$(gpiogetcxx_SOURCES) $(gpioinfocxx_SOURCES) \
+	$(gpiomoncxx_SOURCES) $(gpiosetcxx_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -221,6 +218,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATCH2_CFLAGS = @CATCH2_CFLAGS@
+CATCH2_LIBS = @CATCH2_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -243,6 +242,8 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 EXTRA_VERSION = @EXTRA_VERSION@
 FGREP = @FGREP@
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
 GREP = @GREP@
 HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
@@ -322,8 +323,10 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+has_bats = @has_bats@
 has_doxygen = @has_doxygen@
 has_help2man = @has_help2man@
+has_python_config = @has_python_config@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -360,7 +363,6 @@ top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I$(top_srcdir)/bindings/cxx/ -I$(top_srcdir)/include \
 	-Wall -Wextra -g -std=gnu++11
 AM_LDFLAGS = -lgpiodcxx -L$(top_builddir)/bindings/cxx/
-gpiod_cxx_tests_SOURCES = gpiod_cxx_tests.cpp
 gpiodetectcxx_SOURCES = gpiodetectcxx.cpp
 gpiofindcxx_SOURCES = gpiofindcxx.cpp
 gpiogetcxx_SOURCES = gpiogetcxx.cpp
@@ -401,18 +403,14 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
-clean-checkPROGRAMS:
-	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
 	rm -f $$list || exit $$?; \
 	test -n "$(EXEEXT)" || exit 0; \
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-
-gpiod_cxx_tests$(EXEEXT): $(gpiod_cxx_tests_OBJECTS) $(gpiod_cxx_tests_DEPENDENCIES) $(EXTRA_gpiod_cxx_tests_DEPENDENCIES) 
-	@rm -f gpiod_cxx_tests$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(gpiod_cxx_tests_OBJECTS) $(gpiod_cxx_tests_LDADD) $(LIBS)
 
 gpiodetectcxx$(EXEEXT): $(gpiodetectcxx_OBJECTS) $(gpiodetectcxx_DEPENDENCIES) $(EXTRA_gpiodetectcxx_DEPENDENCIES) 
 	@rm -f gpiodetectcxx$(EXEEXT)
@@ -444,7 +442,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiod_cxx_tests.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiodetectcxx.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiofindcxx.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gpiogetcxx.Po@am__quote@ # am--include-marker
@@ -574,9 +571,8 @@ distdir-am: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
-all-am: Makefile
+all-am: Makefile $(PROGRAMS)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -610,12 +606,11 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
+clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 	mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/gpiod_cxx_tests.Po
-	-rm -f ./$(DEPDIR)/gpiodetectcxx.Po
+		-rm -f ./$(DEPDIR)/gpiodetectcxx.Po
 	-rm -f ./$(DEPDIR)/gpiofindcxx.Po
 	-rm -f ./$(DEPDIR)/gpiogetcxx.Po
 	-rm -f ./$(DEPDIR)/gpioinfocxx.Po
@@ -666,8 +661,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/gpiod_cxx_tests.Po
-	-rm -f ./$(DEPDIR)/gpiodetectcxx.Po
+		-rm -f ./$(DEPDIR)/gpiodetectcxx.Po
 	-rm -f ./$(DEPDIR)/gpiofindcxx.Po
 	-rm -f ./$(DEPDIR)/gpiogetcxx.Po
 	-rm -f ./$(DEPDIR)/gpioinfocxx.Po
@@ -691,10 +685,10 @@ ps-am:
 
 uninstall-am:
 
-.MAKE: check-am install-am install-strip
+.MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--depfiles check check-am clean \
-	clean-checkPROGRAMS clean-generic clean-libtool cscopelist-am \
+	clean-generic clean-libtool clean-noinstPROGRAMS cscopelist-am \
 	ctags ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-data \

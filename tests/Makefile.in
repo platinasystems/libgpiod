@@ -97,13 +97,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = gpiod-test$(EXEEXT)
-@WITH_TOOLS_TRUE@am__append_1 = tests-gpiodetect.c \
-@WITH_TOOLS_TRUE@			tests-gpiofind.c \
-@WITH_TOOLS_TRUE@			tests-gpioget.c \
-@WITH_TOOLS_TRUE@			tests-gpioinfo.c \
-@WITH_TOOLS_TRUE@			tests-gpiomon.c \
-@WITH_TOOLS_TRUE@			tests-gpioset.c
-
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -119,25 +112,15 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__gpiod_test_SOURCES_DIST = gpiod-test.c gpiod-test.h tests-chip.c \
-	tests-ctxless.c tests-event.c tests-iter.c tests-line.c \
-	tests-misc.c tests-gpiodetect.c tests-gpiofind.c \
-	tests-gpioget.c tests-gpioinfo.c tests-gpiomon.c \
-	tests-gpioset.c
-@WITH_TOOLS_TRUE@am__objects_1 = tests-gpiodetect.$(OBJEXT) \
-@WITH_TOOLS_TRUE@	tests-gpiofind.$(OBJEXT) \
-@WITH_TOOLS_TRUE@	tests-gpioget.$(OBJEXT) \
-@WITH_TOOLS_TRUE@	tests-gpioinfo.$(OBJEXT) \
-@WITH_TOOLS_TRUE@	tests-gpiomon.$(OBJEXT) \
-@WITH_TOOLS_TRUE@	tests-gpioset.$(OBJEXT)
 am_gpiod_test_OBJECTS = gpiod-test.$(OBJEXT) tests-chip.$(OBJEXT) \
 	tests-ctxless.$(OBJEXT) tests-event.$(OBJEXT) \
-	tests-iter.$(OBJEXT) tests-line.$(OBJEXT) tests-misc.$(OBJEXT) \
-	$(am__objects_1)
+	tests-iter.$(OBJEXT) tests-line.$(OBJEXT) tests-misc.$(OBJEXT)
 gpiod_test_OBJECTS = $(am_gpiod_test_OBJECTS)
 gpiod_test_LDADD = $(LDADD)
+am__DEPENDENCIES_1 =
 gpiod_test_DEPENDENCIES = $(top_builddir)/lib/libgpiod.la \
-	$(top_builddir)/tests/mockup/libgpiomockup.la
+	$(top_builddir)/tests/mockup/libgpiomockup.la \
+	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -159,10 +142,7 @@ depcomp = $(SHELL) $(top_srcdir)/autostuff/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/gpiod-test.Po \
 	./$(DEPDIR)/tests-chip.Po ./$(DEPDIR)/tests-ctxless.Po \
-	./$(DEPDIR)/tests-event.Po ./$(DEPDIR)/tests-gpiodetect.Po \
-	./$(DEPDIR)/tests-gpiofind.Po ./$(DEPDIR)/tests-gpioget.Po \
-	./$(DEPDIR)/tests-gpioinfo.Po ./$(DEPDIR)/tests-gpiomon.Po \
-	./$(DEPDIR)/tests-gpioset.Po ./$(DEPDIR)/tests-iter.Po \
+	./$(DEPDIR)/tests-event.Po ./$(DEPDIR)/tests-iter.Po \
 	./$(DEPDIR)/tests-line.Po ./$(DEPDIR)/tests-misc.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -184,7 +164,7 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(gpiod_test_SOURCES)
-DIST_SOURCES = $(am__gpiod_test_SOURCES_DIST)
+DIST_SOURCES = $(gpiod_test_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -266,6 +246,8 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+CATCH2_CFLAGS = @CATCH2_CFLAGS@
+CATCH2_LIBS = @CATCH2_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -288,6 +270,8 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 EXTRA_VERSION = @EXTRA_VERSION@
 FGREP = @FGREP@
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
 GREP = @GREP@
 HAVE_CXX11 = @HAVE_CXX11@
 INSTALL = @INSTALL@
@@ -367,8 +351,10 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+has_bats = @has_bats@
 has_doxygen = @has_doxygen@
 has_help2man = @has_help2man@
+has_python_config = @has_python_config@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -404,13 +390,21 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = mockup
 AM_CFLAGS = -I$(top_srcdir)/include/ -I$(top_srcdir)/tests/mockup/ \
-	-include $(top_builddir)/config.h -Wall -Wextra -g
+	-include $(top_builddir)/config.h -Wall -Wextra -g \
+	$(GLIB_CFLAGS) -DG_LOG_DOMAIN=\"gpiod-test\"
 AM_LDFLAGS = -pthread
 LDADD = $(top_builddir)/lib/libgpiod.la \
-	$(top_builddir)/tests/mockup/libgpiomockup.la
-gpiod_test_SOURCES = gpiod-test.c gpiod-test.h tests-chip.c \
-	tests-ctxless.c tests-event.c tests-iter.c tests-line.c \
-	tests-misc.c $(am__append_1)
+	$(top_builddir)/tests/mockup/libgpiomockup.la $(GLIB_LIBS)
+gpiod_test_SOURCES = \
+		gpiod-test.c		\
+		gpiod-test.h		\
+		tests-chip.c		\
+		tests-ctxless.c		\
+		tests-event.c		\
+		tests-iter.c		\
+		tests-line.c		\
+		tests-misc.c
+
 all: all-recursive
 
 .SUFFIXES:
@@ -508,12 +502,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-chip.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-ctxless.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-event.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-gpiodetect.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-gpiofind.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-gpioget.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-gpioinfo.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-gpiomon.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-gpioset.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-iter.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-line.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tests-misc.Po@am__quote@ # am--include-marker
@@ -758,12 +746,6 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/tests-chip.Po
 	-rm -f ./$(DEPDIR)/tests-ctxless.Po
 	-rm -f ./$(DEPDIR)/tests-event.Po
-	-rm -f ./$(DEPDIR)/tests-gpiodetect.Po
-	-rm -f ./$(DEPDIR)/tests-gpiofind.Po
-	-rm -f ./$(DEPDIR)/tests-gpioget.Po
-	-rm -f ./$(DEPDIR)/tests-gpioinfo.Po
-	-rm -f ./$(DEPDIR)/tests-gpiomon.Po
-	-rm -f ./$(DEPDIR)/tests-gpioset.Po
 	-rm -f ./$(DEPDIR)/tests-iter.Po
 	-rm -f ./$(DEPDIR)/tests-line.Po
 	-rm -f ./$(DEPDIR)/tests-misc.Po
@@ -816,12 +798,6 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/tests-chip.Po
 	-rm -f ./$(DEPDIR)/tests-ctxless.Po
 	-rm -f ./$(DEPDIR)/tests-event.Po
-	-rm -f ./$(DEPDIR)/tests-gpiodetect.Po
-	-rm -f ./$(DEPDIR)/tests-gpiofind.Po
-	-rm -f ./$(DEPDIR)/tests-gpioget.Po
-	-rm -f ./$(DEPDIR)/tests-gpioinfo.Po
-	-rm -f ./$(DEPDIR)/tests-gpiomon.Po
-	-rm -f ./$(DEPDIR)/tests-gpioset.Po
 	-rm -f ./$(DEPDIR)/tests-iter.Po
 	-rm -f ./$(DEPDIR)/tests-line.Po
 	-rm -f ./$(DEPDIR)/tests-misc.Po
@@ -866,7 +842,7 @@ uninstall-am: uninstall-binPROGRAMS
 
 all-local: gpiod-test
 	@echo " ********************************************************"
-	@echo " * Tests have been built as tests/gpio-test.            *"
+	@echo " * Core tests have been built as tests/gpiod-test.      *"
 	@echo " *                                                      *"
 	@echo " * They require a recent linux kernel version and the   *"
 	@echo " * gpio-mockup module (must not be built-in).           *"
