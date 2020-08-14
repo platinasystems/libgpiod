@@ -1,3 +1,10 @@
+libgpiod (1.5.1-2) unstable; urgency=medium
+
+  * Fix symbol mismatches - Thanks to Gianfranco Costamagna
+    <locutusofborg@debian.org> (Closes:#966654, #966964)
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Fri, 14 Aug 2020 14:41:33 +0800
+
 libgpiod (1.5.1-1) unstable; urgency=medium
 
   * Import new upstream release
