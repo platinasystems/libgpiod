@@ -1,3 +1,9 @@
+libgpiod (1.5.2-1) unstable; urgency=medium
+
+  * Import new upstream release
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Thu, 03 Sep 2020 11:26:10 +0800
+
 libgpiod (1.5.1-2) unstable; urgency=medium
 
   * Fix symbol mismatches - Thanks to Gianfranco Costamagna
