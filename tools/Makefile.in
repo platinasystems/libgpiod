@@ -407,7 +407,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CFLAGS = -I$(top_srcdir)/include/ -include $(top_builddir)/config.h \
-	-Wall -Wextra -g
+	-Wall -Wextra -g -std=gnu89
 noinst_LTLIBRARIES = libtools-common.la
 libtools_common_la_SOURCES = tools-common.c tools-common.h
 LDADD = libtools-common.la $(top_builddir)/lib/libgpiod.la

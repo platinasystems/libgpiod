@@ -472,7 +472,7 @@ static PyObject *gpiod_Line_request(gpiod_LineObject *self,
 	gpiod_LineBulkObject *bulk_obj;
 	int rv;
 
-	if (PyDict_Size(kwds) > 0) {
+	if (kwds && PyDict_Size(kwds) > 0) {
 		def_val = PyDict_GetItemString(kwds, "default_val");
 		def_vals = PyDict_GetItemString(kwds, "default_vals");
 	} else {
@@ -1874,7 +1874,7 @@ PyDoc_STRVAR(gpiod_LineBulkType_doc,
 static PyTypeObject gpiod_LineBulkType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	.tp_name = "gpiod.LineBulk",
-	.tp_basicsize = sizeof(gpiod_LineBulkType),
+	.tp_basicsize = sizeof(gpiod_LineBulkObject),
 	.tp_flags = Py_TPFLAGS_DEFAULT,
 	.tp_doc = gpiod_LineBulkType_doc,
 	.tp_new = PyType_GenericNew,
@@ -2690,6 +2690,7 @@ static gpiod_LineObject *gpiod_Module_find_line(PyObject *Py_UNUSED(self),
 PyDoc_STRVAR(gpiod_Module_version_string_doc,
 "version_string() -> string\n"
 "\n"
+"DEPRECATED: use __version__ module attribute instead.\n"
 "Get the API version of the library as a human-readable string.");
 
 static PyObject *gpiod_Module_version_string(PyObject *Py_UNUSED(ignored0),
@@ -2933,6 +2934,11 @@ PyMODINIT_FUNC PyInit_gpiod(void)
 		if (rv < 0)
 			return NULL;
 	}
+
+	rv = PyModule_AddStringConstant(module, "__version__",
+					gpiod_version_string());
+	if (rv < 0)
+		return NULL;
 
 	return module;
 }

@@ -375,7 +375,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libgpiod.la
 libgpiod_la_SOURCES = core.c ctxless.c helpers.c iter.c misc.c
-libgpiod_la_CFLAGS = -Wall -Wextra -g -fvisibility=hidden \
+libgpiod_la_CFLAGS = -Wall -Wextra -g -std=gnu89 -fvisibility=hidden \
 	-I$(top_srcdir)/include/ -include $(top_builddir)/config.h
 libgpiod_la_LDFLAGS = -version-info $(subst .,:,$(ABI_VERSION))
 pkgconfigdir = $(libdir)/pkgconfig

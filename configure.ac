@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT([libgpiod], 1.5.2)
+AC_INIT([libgpiod], 1.6.1)
 AC_SUBST(EXTRA_VERSION, [])
 
 AC_DEFINE_UNQUOTED([GPIOD_VERSION_STR],
@@ -30,9 +30,12 @@ AC_SUBST(VERSION_STR, [$PACKAGE_VERSION$EXTRA_VERSION])
 #
 # Define the libtool version as (C.R.A):
 # NOTE: this version only applies to the core C library.
-AC_SUBST(ABI_VERSION, [4.2.2])
+AC_SUBST(ABI_VERSION, [4.1.2])
 # Have a separate ABI version for C++ bindings:
-AC_SUBST(ABI_CXX_VERSION, [2.0.1])
+AC_SUBST(ABI_CXX_VERSION, [2.1.1])
+# ABI version for libgpiomockup (we need this since it can be installed if we
+# enable install-tests).
+AC_SUBST(ABI_MOCKUP_VERSION, [0.1.0])
 
 AC_CONFIG_AUX_DIR([autostuff])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -84,6 +87,7 @@ AC_CHECK_FUNC([asprintf], [], [FUNC_NOT_FOUND_LIB([asprintf])])
 AC_CHECK_FUNC([scandir], [], [FUNC_NOT_FOUND_LIB([scandir])])
 AC_CHECK_FUNC([alphasort], [], [FUNC_NOT_FOUND_LIB([alphasort])])
 AC_CHECK_FUNC([ppoll], [], [FUNC_NOT_FOUND_LIB([ppoll])])
+AC_CHECK_FUNC([realpath], [], [FUNC_NOT_FOUND_LIB([realpath])])
 AC_CHECK_HEADERS([getopt.h], [], [HEADER_NOT_FOUND_LIB([getopt.h])])
 AC_CHECK_HEADERS([dirent.h], [], [HEADER_NOT_FOUND_LIB([dirent.h])])
 AC_CHECK_HEADERS([sys/poll.h], [], [HEADER_NOT_FOUND_LIB([sys/poll.h])])
@@ -152,10 +156,6 @@ then
 	fi
 fi
 
-# ABI version for libgpiomockup (we need this since it can be installed if we
-# enable install-tests).
-AC_SUBST(ABI_MOCKUP_VERSION, [0.1.0])
-
 AC_ARG_ENABLE([bindings-cxx],
 	[AC_HELP_STRING([--enable-bindings-cxx],
 		[enable C++ bindings [default=no]])],
@@ -207,6 +207,7 @@ if test "x$has_doxygen" = xfalse
 then
 	AC_MSG_NOTICE([doxygen not found - documentation cannot be generated])
 fi
+AM_COND_IF([HAS_DOXYGEN], [AC_CONFIG_FILES([Doxyfile])])
 
 if test "x$cross_compiling" = xno
 then

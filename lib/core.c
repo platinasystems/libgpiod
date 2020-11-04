@@ -179,10 +179,8 @@ struct gpiod_chip *gpiod_chip_open(const char *path)
 	 * We were able to open the file but is it really a gpiochip character
 	 * device?
 	 */
-	if (!is_gpiochip_cdev(path)) {
-		close(fd);
-		return NULL;
-	}
+	if (!is_gpiochip_cdev(path))
+		goto err_close_fd;
 
 	chip = malloc(sizeof(*chip));
 	if (!chip)
@@ -1092,7 +1090,10 @@ int gpiod_line_event_read_fd_multiple(int fd, struct gpiod_line_event *events,
 
 	memset(evdata, 0, sizeof(evdata));
 
-	rd = read(fd, evdata, sizeof(evdata));
+	if (num_events > 16)
+		num_events = 16;
+
+	rd = read(fd, evdata, num_events * sizeof(*evdata));
 	if (rd < 0) {
 		return -1;
 	} else if ((unsigned int)rd < sizeof(*evdata)) {
