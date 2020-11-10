@@ -1,16 +1,16 @@
 From: =?utf-8?b?IlNaIExpbiAo5p6X5LiK5pm6KSI=?= <szlin@debian.org>
-Date: Wed, 28 Oct 2020 13:38:36 +0800
+Date: Mon, 9 Nov 2020 11:24:33 +0800
 Subject: Don't run help2man during cross builds and use pre-generated manual
  pages instead - Thanks to Helmut Grohne <helmut.grohne@intenta.de>
 
 Forwarded: no
 ---
  configure.ac    | 2 +-
- man/Makefile.am | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ man/Makefile.am | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index b5dba42..05a043f 100644
+index cd337ff..921b7c4 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -213,7 +213,7 @@ if test "x$cross_compiling" = xno
@@ -23,15 +23,19 @@ index b5dba42..05a043f 100644
  then
  	AC_MSG_NOTICE([help2man not found - man pages cannot be generated automatically])
 diff --git a/man/Makefile.am b/man/Makefile.am
-index 0f9c644..b5df3b2 100644
+index 0f9c644..70a0f4f 100644
 --- a/man/Makefile.am
 +++ b/man/Makefile.am
-@@ -6,7 +6,7 @@
+@@ -6,10 +6,10 @@
  # Copyright (C) 2019 Bartosz Golaszewski <bartekgola@gmail.com>
  #
  
 -if WITH_MANPAGES
-+if WITH_HELP2MAN
- 
+-
  dist_man1_MANS = gpiodetect.man gpioinfo.man gpioget.man gpioset.man gpiofind.man gpiomon.man
+ 
++if WITH_HELP2MAN
++
+ %.man: $(top_builddir)/tools/$(*F)
+ 	help2man $(top_builddir)/tools/$(*F) --include=$(srcdir)/template --output=$(builddir)/$@ --no-info
  
