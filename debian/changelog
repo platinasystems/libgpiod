@@ -1,3 +1,13 @@
+libgpiod (1.6.2-1) unstable; urgency=medium
+
+  * Import new upstream release
+  * d/control:
+    - Set Build-Depends: linux-libc-dev (>= 4.8), the new version of libgpiod
+      allows building the library with pre Linux v5.5 kernel headers.
+    - Bump Standards-Version to 4.5.1
+
+ -- SZ Lin (林上智) <szlin@debian.org>  Mon, 14 Dec 2020 15:34:58 +0800
+
 libgpiod (1.6.1-2) unstable; urgency=medium
 
   * Tweak the patch to fix FTCBFS - Thanks to Helmut Grohne
