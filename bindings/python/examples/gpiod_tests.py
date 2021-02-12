@@ -14,7 +14,6 @@ system and that it's detected as gpiochip0.
 '''
 
 import gpiod
-import sys
 import select
 
 test_cases = []
@@ -216,6 +215,20 @@ def find_lines():
 
 add_test('Find multiple lines by name', find_lines)
 
+def find_lines_one_bad():
+    chip = gpiod.Chip('gpiochip0')
+
+    print('looking up lines by names')
+    try:
+        lines = chip.find_lines(['gpio-mockup-A-3', 'nonexistent', 'gpio-mockup-A-7'])
+    except TypeError as ex:
+        print('Error as expected')
+        return
+
+    assert False, 'TypeError expected'
+
+add_test('Find multiple lines but one line name is non-existent', find_lines_one_bad)
+
 def create_line_bulk_from_lines():
     chip = gpiod.Chip('gpio-mockup-A')
     line1 = chip.get_line(2)
@@ -244,7 +257,7 @@ def line_flags():
     print('line is requested: {}'.format(line.is_requested()))
 
     print('requesting line')
-    line.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_DIR_OUT,
+    line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_DIR_OUT,
                  flags=(gpiod.LINE_REQ_FLAG_OPEN_DRAIN | gpiod.LINE_REQ_FLAG_ACTIVE_LOW))
 
     print('line is used: {}'.format(line.is_used()))
@@ -261,7 +274,7 @@ add_test('Check various line flags', line_flags)
 def get_value_single_line():
     chip = gpiod.Chip('gpio-mockup-A')
     line = chip.get_line(2)
-    line.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_DIR_IN)
+    line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_DIR_IN)
     print('line value: {}'.format(line.get_value()))
     chip.close()
 
@@ -270,26 +283,69 @@ add_test('Get value - single line', get_value_single_line)
 def set_value_single_line():
     chip = gpiod.Chip('gpiochip0')
     line = chip.get_line(3)
-    line.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_DIR_IN)
+    line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_DIR_IN)
 
     print('line value before: {}'.format(line.get_value()))
     line.release()
-    line.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_DIR_OUT)
+    line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_DIR_OUT)
     line.set_value(1)
     line.release()
-    line.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_DIR_IN)
+    line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_DIR_IN)
     print('line value after: {}'.format(line.get_value()))
 
     chip.close()
 
 add_test('Set value - single line', set_value_single_line)
 
+def request_line_with_default_values():
+    chip = gpiod.Chip('gpiochip0')
+    line = chip.get_line(3)
+
+    print('requesting a single line with a default value')
+    line.request(consumer='gpiod_test.py', type=gpiod.LINE_REQ_DIR_OUT, default_vals=[ 1 ])
+
+    print('line value after request: {}'.format(line.get_value()))
+
+    chip.close()
+
+add_test('Request line with default value', request_line_with_default_values)
+
+def request_multiple_lines_with_default_values():
+    chip = gpiod.Chip('gpiochip0')
+    lines = chip.get_lines(( 1, 2, 3, 4, 5 ))
+
+    print('requesting lines with default values')
+    lines.request(consumer='gpiod_test.py', type=gpiod.LINE_REQ_DIR_OUT, default_vals=( 1, 0, 1, 0, 1 ))
+
+    print('line values after request: {}'.format(lines.get_values()))
+
+    chip.close()
+
+add_test('Request multiple lines with default values', request_multiple_lines_with_default_values)
+
+def request_line_incorrect_number_of_def_vals():
+    with gpiod.Chip('gpiochip0') as chip:
+        lines = chip.get_lines(( 1, 2, 3, 4, 5 ))
+
+        print('requesting lines with incorrect number of default values')
+        try:
+            lines.request(consumer='gpiod_test.py',
+                          type=gpiod.LINE_REQ_DIR_OUT,
+                          default_vals=( 1, 0, 1, 0 ))
+        except TypeError:
+            print('TypeError raised as expected')
+            return
+
+        assert False, 'TypeError expected'
+
+add_test('Request with incorrect number of default values', request_line_incorrect_number_of_def_vals)
+
 def line_event_single_line():
     chip = gpiod.Chip('gpiochip0')
     line = chip.get_line(1)
 
     print('requesting line for events')
-    line.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_EV_BOTH_EDGES)
+    line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 
     print('generating a line event')
     fire_line_event('gpiochip0', 1, True)
@@ -308,7 +364,7 @@ def line_event_multiple_lines():
     lines = chip.get_lines((1, 2, 3, 4, 5))
 
     print('requesting lines for events')
-    lines.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_EV_BOTH_EDGES)
+    lines.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 
     print('generating two line events')
     fire_line_event('gpiochip0', 1, True)
@@ -330,7 +386,7 @@ def line_event_poll_fd():
     chip = gpiod.Chip('gpiochip0')
     lines = chip.get_lines((1, 2, 3, 4, 5, 6))
     print('requesting lines for events')
-    lines.request(consumer=sys.argv[0], type=gpiod.LINE_REQ_EV_BOTH_EDGES)
+    lines.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_EV_BOTH_EDGES)
 
     print('generating three line events')
     fire_line_event('gpiochip0', 2, True)
@@ -356,6 +412,21 @@ def line_event_poll_fd():
     chip.close()
 
 add_test('Monitor multiple lines using their file descriptors', line_event_poll_fd)
+
+def line_event_repr():
+    with gpiod.Chip('gpiochip0') as chip:
+        line = chip.get_line(1)
+
+        print('requesting line for events')
+        line.request(consumer="gpiod_test.py", type=gpiod.LINE_REQ_EV_BOTH_EDGES)
+
+        print('generating a line event')
+        fire_line_event('gpiochip0', 1, True)
+        assert line.event_wait(sec=1), 'Expected a line event to occur'
+
+        print('event received: {}'.format(line.event_read()))
+
+add_test('Line event string repr', line_event_repr)
 
 print('API version is {}'.format(gpiod.version_string()))
 
