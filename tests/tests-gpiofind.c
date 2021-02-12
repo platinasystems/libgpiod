@@ -1,13 +1,15 @@
 /*
- * Test cases for the gpiofind tool.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
  */
+
+/* Test cases for the gpiofind program. */
 
 #include "gpiod-test.h"
 
@@ -15,19 +17,14 @@
 
 static void gpiofind_found(void)
 {
-	TEST_CLEANUP(test_free_str) char *output = NULL;
-	int rv;
-
-	rv = asprintf(&output, "%s 7\n", test_chip_name(1));
-	TEST_ASSERT(rv > 0);
-
 	test_tool_run("gpiofind", "gpio-mockup-B-7", (char *)NULL);
 	test_tool_wait();
 
 	TEST_ASSERT(test_tool_exited());
 	TEST_ASSERT_RET_OK(test_tool_exit_status());
 	TEST_ASSERT_NOT_NULL(test_tool_stdout());
-	TEST_ASSERT_STR_EQ(test_tool_stdout(), output);
+	TEST_ASSERT_STR_EQ(test_tool_stdout(),
+			   test_build_str("%s 7\n", test_chip_name(1)));
 	TEST_ASSERT_NULL(test_tool_stderr());
 }
 TEST_DEFINE(gpiofind_found,

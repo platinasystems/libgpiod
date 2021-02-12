@@ -1,9 +1,9 @@
 /*
- * Read value from GPIO line.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -19,7 +19,7 @@
 static const struct option longopts[] = {
 	{ "help",	no_argument,	NULL,	'h' },
 	{ "version",	no_argument,	NULL,	'v' },
-	{ 0 },
+	{ GETOPT_NULL_LONGOPT },
 };
 
 static const char *const shortopts = "+hv";
@@ -35,11 +35,9 @@ static void print_help(void)
 
 int main(int argc, char **argv)
 {
-	struct gpiod_line *line;
-	struct gpiod_chip *chip;
-	int optc, opti;
-
-	set_progname(argv[0]);
+	unsigned int offset;
+	int optc, opti, rv;
+	char chip[32];
 
 	for (;;) {
 		optc = getopt_long(argc, argv, shortopts, longopts, &opti);
@@ -66,15 +64,13 @@ int main(int argc, char **argv)
 	if (argc != 1)
 		die("exactly one GPIO line name must be specified");
 
-	line = gpiod_line_find_by_name(argv[0]);
-	if (!line)
+	rv = gpiod_ctxless_find_line(argv[0], chip, sizeof(chip), &offset);
+	if (rv < 0)
+		die_perror("error performing the line lookup");
+	else if (rv == 0)
 		return EXIT_FAILURE;
 
-	chip = gpiod_line_get_chip(line);
-
-	printf("%s %u\n", gpiod_chip_name(chip), gpiod_line_offset(line));
-
-	gpiod_chip_close(chip);
+	printf("%s %u\n", chip, offset);
 
 	return EXIT_SUCCESS;
 }

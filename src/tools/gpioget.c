@@ -1,9 +1,9 @@
 /*
- * Read value from GPIO line.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -21,7 +21,7 @@ static const struct option longopts[] = {
 	{ "help",	no_argument,	NULL,	'h' },
 	{ "version",	no_argument,	NULL,	'v' },
 	{ "active-low",	no_argument,	NULL,	'l' },
-	{ 0 },
+	{ GETOPT_NULL_LONGOPT },
 };
 
 static const char *const shortopts = "+hvl";
@@ -43,8 +43,6 @@ int main(int argc, char **argv)
 	int *values, optc, opti, status;
 	bool active_low = false;
 	char *device, *end;
-
-	set_progname(argv[0]);
 
 	for (;;) {
 		optc = getopt_long(argc, argv, shortopts, longopts, &opti);
@@ -91,9 +89,9 @@ int main(int argc, char **argv)
 			die("invalid GPIO offset: %s", argv[i + 1]);
 	}
 
-	status = gpiod_simple_get_value_multiple("gpioget", device,
-						 offsets, values,
-						 num_lines, active_low);
+	status = gpiod_ctxless_get_value_multiple(device, offsets, values,
+						  num_lines, active_low,
+						  "gpioget");
 	if (status < 0)
 		die_perror("error reading GPIO values");
 

@@ -1,9 +1,9 @@
 /*
- * Common code for GPIO tools.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -19,11 +19,11 @@
  * common code.
  */
 
-#define UNUSED			__attribute__((unused))
 #define PRINTF(fmt, arg)	__attribute__((format(printf, fmt, arg)))
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof(*(x)))
 
-void set_progname(char *name);
+#define GETOPT_NULL_LONGOPT	NULL, 0, NULL, 0
+
 const char * get_progname(void);
 void die(const char *fmt, ...);
 void die_perror(const char *fmt, ...);

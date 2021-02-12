@@ -1,9 +1,9 @@
 /*
- * Testing framework for libgpiod.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -73,6 +73,7 @@ struct test_context {
 	size_t num_chips;
 	bool test_failed;
 	char *failed_msg;
+	char *custom_str;
 	struct event_thread event;
 	struct gpiotool_proc tool_proc;
 	bool running;
@@ -87,7 +88,6 @@ static struct {
 	struct kmod_module *module;
 	struct test_context test_ctx;
 	pid_t main_pid;
-	char *progpath;
 	int pipesize;
 	char *pipebuf;
 } globals;
@@ -100,7 +100,7 @@ enum {
 	CYELLOW,
 };
 
-static const char *term_colors[] = {
+static const char *const term_colors[] = {
 	"\033[0m",
 	"\033[32m",
 	"\033[31m",
@@ -214,7 +214,7 @@ static TEST_PRINTF(1, 2) NORETURN void die_perr(const char *fmt, ...)
 	exit(EXIT_FAILURE);
 }
 
-static MALLOC void * xmalloc(size_t size)
+static MALLOC void *xmalloc(size_t size)
 {
 	void *ptr;
 
@@ -225,7 +225,7 @@ static MALLOC void * xmalloc(size_t size)
 	return ptr;
 }
 
-static MALLOC void * xzalloc(size_t size)
+static MALLOC void *xzalloc(size_t size)
 {
 	void *ptr;
 
@@ -235,7 +235,7 @@ static MALLOC void * xzalloc(size_t size)
 	return ptr;
 }
 
-static MALLOC void * xcalloc(size_t nmemb, size_t size)
+static MALLOC void *xcalloc(size_t nmemb, size_t size)
 {
 	void *ptr;
 
@@ -246,7 +246,7 @@ static MALLOC void * xcalloc(size_t nmemb, size_t size)
 	return ptr;
 }
 
-static MALLOC char * xstrdup(const char *str)
+static MALLOC char *xstrdup(const char *str)
 {
 	char *ret;
 
@@ -257,7 +257,7 @@ static MALLOC char * xstrdup(const char *str)
 	return ret;
 }
 
-static MALLOC TEST_PRINTF(2, 3) char * xappend(char *str, const char *fmt, ...)
+static TEST_PRINTF(2, 3) char *xappend(char *str, const char *fmt, ...)
 {
 	char *new, *ret;
 	va_list va;
@@ -356,7 +356,7 @@ static void event_unlock(void)
 	pthread_mutex_unlock(&globals.test_ctx.event.lock);
 }
 
-static void * event_worker(void *data TEST_UNUSED)
+static void *event_worker(void *data TEST_UNUSED)
 {
 	struct event_thread *ev = &globals.test_ctx.event;
 	struct timeval tv_now, tv_add, tv_res;
@@ -451,11 +451,11 @@ static void gpiotool_proc_dup_fds(int in_fd, int out_fd, int err_fd)
 	}
 }
 
-static char * gpiotool_proc_get_path(const char *tool)
+static char *gpiotool_proc_get_path(const char *tool)
 {
 	char *path, *progpath, *progdir;
 
-	progpath = xstrdup(globals.progpath);
+	progpath = xstrdup(program_invocation_name);
 	progdir = dirname(progpath);
 	path = xappend(NULL, "%s/../../src/tools/%s", progdir, tool);
 	free(progpath);
@@ -471,7 +471,8 @@ static NORETURN void gpiotool_proc_exec(const char *path, va_list va)
 	va_list va2;
 
 	va_copy(va2, va);
-	for (num_args = 2; va_arg(va2, char *) != NULL; num_args++);
+	for (num_args = 2; va_arg(va2, char *) != NULL; num_args++)
+		;
 	va_end(va2);
 
 	argv = xcalloc(num_args, sizeof(char *));
@@ -663,14 +664,14 @@ void test_tool_wait(void)
 	proc->running = false;
 }
 
-const char * test_tool_stdout(void)
+const char *test_tool_stdout(void)
 {
 	struct gpiotool_proc *proc = &globals.test_ctx.tool_proc;
 
 	return proc->stdout;
 }
 
-const char * test_tool_stderr(void)
+const char *test_tool_stderr(void)
 {
 	struct gpiotool_proc *proc = &globals.test_ctx.tool_proc;
 
@@ -906,6 +907,8 @@ static void prepare_test(struct _test_chip_descr *descr)
 
 static void run_test(struct _test_case *test)
 {
+	errno = 0;
+
 	print_header("TEST", CYELLOW);
 	pr_raw("'%s': ", test->name);
 
@@ -976,6 +979,9 @@ static void teardown_test(void)
 
 	free(globals.test_ctx.chips);
 
+	if (globals.test_ctx.custom_str)
+		free(globals.test_ctx.custom_str);
+
 	if (mockup_loaded()) {
 		status = kmod_module_remove_module(globals.module, 0);
 		if (status)
@@ -983,12 +989,11 @@ static void teardown_test(void)
 	}
 }
 
-int main(int argc TEST_UNUSED, char **argv)
+int main(int argc TEST_UNUSED, char **argv TEST_UNUSED)
 {
 	struct _test_case *test;
 
 	globals.main_pid = getpid();
-	globals.progpath = argv[0];
 	globals.pipesize = get_pipesize();
 	globals.pipebuf = xmalloc(globals.pipesize);
 	atexit(cleanup_func);
@@ -1022,10 +1027,10 @@ void test_close_chip(struct gpiod_chip **chip)
 		gpiod_chip_close(*chip);
 }
 
-void test_free_str(char **str)
+void test_line_close_chip(struct gpiod_line **line)
 {
-	if (*str)
-		free(*str);
+	if (*line)
+		gpiod_line_close_chip(*line);
 }
 
 void test_free_chip_iter(struct gpiod_chip_iter **iter)
@@ -1034,20 +1039,26 @@ void test_free_chip_iter(struct gpiod_chip_iter **iter)
 		gpiod_chip_iter_free(*iter);
 }
 
+void test_free_line_iter(struct gpiod_line_iter **iter)
+{
+	if (*iter)
+		gpiod_line_iter_free(*iter);
+}
+
 void test_free_chip_iter_noclose(struct gpiod_chip_iter **iter)
 {
 	if (*iter)
 		gpiod_chip_iter_free_noclose(*iter);
 }
 
-const char * test_chip_path(unsigned int index)
+const char *test_chip_path(unsigned int index)
 {
 	check_chip_index(index);
 
 	return globals.test_ctx.chips[index]->path;
 }
 
-const char * test_chip_name(unsigned int index)
+const char *test_chip_name(unsigned int index)
 {
 	check_chip_index(index);
 
@@ -1146,4 +1157,24 @@ bool test_regex_match(const char *str, const char *pattern)
 	regfree(&regex);
 
 	return ret;
+}
+
+const char *test_build_str(const char *fmt, ...)
+{
+	va_list va;
+	char *str;
+	int rv;
+
+	if (globals.test_ctx.custom_str)
+		free(globals.test_ctx.custom_str);
+
+	va_start(va, fmt);
+	rv = vasprintf(&str, fmt, va);
+	va_end(va);
+	if (rv < 0)
+		die_perr("error creating custom string");
+
+	globals.test_ctx.custom_str = str;
+
+	return str;
 }

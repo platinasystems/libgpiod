@@ -1,9 +1,9 @@
 /*
- * Set value of a GPIO line.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -31,7 +31,7 @@ static const struct option longopts[] = {
 	{ "sec",		required_argument,	NULL,	's' },
 	{ "usec",		required_argument,	NULL,	'u' },
 	{ "background",		no_argument,		NULL,	'b' },
-	{ 0 },
+	{ GETOPT_NULL_LONGOPT },
 };
 
 static const char *const shortopts = "+hvlm:s:u:b";
@@ -75,7 +75,7 @@ static void maybe_daemonize(bool daemonize)
 	}
 }
 
-static void wait_enter(void *data UNUSED)
+static void wait_enter(void *data GPIOD_UNUSED)
 {
 	getchar();
 }
@@ -138,7 +138,7 @@ enum {
 struct mode_mapping {
 	int id;
 	const char *name;
-	gpiod_set_value_cb callback;
+	gpiod_ctxless_set_value_cb callback;
 };
 
 static const struct mode_mapping modes[] = {
@@ -164,7 +164,7 @@ static const struct mode_mapping modes[] = {
 	},
 };
 
-static const struct mode_mapping * parse_mode(const char *mode)
+static const struct mode_mapping *parse_mode(const char *mode)
 {
 	unsigned int i;
 
@@ -183,8 +183,6 @@ int main(int argc, char **argv)
 	struct callback_data cbdata;
 	bool active_low = false;
 	char *device, *end;
-
-	set_progname(argv[0]);
 
 	memset(&cbdata, 0, sizeof(cbdata));
 
@@ -209,23 +207,17 @@ int main(int argc, char **argv)
 				die("invalid mode: %s", optarg);
 			break;
 		case 's':
-			if (mode->id != MODE_TIME)
-				die("can't specify seconds in this mode");
 			cbdata.tv.tv_sec = strtoul(optarg, &end, 10);
 			if (*end != '\0')
 				die("invalid time value in seconds: %s", optarg);
 			break;
 		case 'u':
-			if (mode->id != MODE_TIME)
-				die("can't specify microseconds in this mode");
 			cbdata.tv.tv_usec = strtoul(optarg, &end, 10);
 			if (*end != '\0')
 				die("invalid time value in microseconds: %s",
 				    optarg);
 			break;
 		case 'b':
-			if (mode->id != MODE_SIGNAL && mode->id != MODE_TIME)
-				die("can't daemonize in this mode");
 			cbdata.daemonize = true;
 			break;
 		case '?':
@@ -237,6 +229,14 @@ int main(int argc, char **argv)
 
 	argc -= optind;
 	argv += optind;
+
+	if (mode->id != MODE_TIME && (cbdata.tv.tv_sec || cbdata.tv.tv_usec))
+		die("can't specify wait time in this mode");
+
+	if (mode->id != MODE_SIGNAL &&
+	    mode->id != MODE_TIME &&
+	    cbdata.daemonize)
+		die("can't daemonize in this mode");
 
 	if (argc < 1)
 		die("gpiochip must be specified");
@@ -265,9 +265,10 @@ int main(int argc, char **argv)
 			die("invalid offset: %s", argv[i + 1]);
 	}
 
-	status = gpiod_simple_set_value_multiple("gpioset", device, offsets,
-						 values, num_lines, active_low,
-						 mode->callback, &cbdata);
+	status = gpiod_ctxless_set_value_multiple(device, offsets, values,
+						  num_lines, active_low,
+						  "gpioset", mode->callback,
+						  &cbdata);
 	if (status < 0)
 		die_perror("error setting the GPIO line values");
 

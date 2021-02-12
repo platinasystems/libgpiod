@@ -1,9 +1,9 @@
 /*
- * List all lines of a GPIO chip.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
@@ -18,15 +18,17 @@
 #include <getopt.h>
 #include <errno.h>
 
+typedef bool (*is_set_func)(struct gpiod_line *);
+
 struct flag {
 	const char *name;
-	bool (*is_set)(struct gpiod_line *);
+	is_set_func is_set;
 };
 
 static const struct flag flags[] = {
 	{
-		.name = "kernel",
-		.is_set = gpiod_line_is_used_by_kernel,
+		.name = "used",
+		.is_set = gpiod_line_is_used,
 	},
 	{
 		.name = "open-drain",
@@ -41,7 +43,7 @@ static const struct flag flags[] = {
 static const struct option longopts[] = {
 	{ "help",	no_argument,	NULL,	'h' },
 	{ "version",	no_argument,	NULL,	'v' },
-	{ 0 },
+	{ GETOPT_NULL_LONGOPT },
 };
 
 static const char *const shortopts = "+hv";
@@ -89,22 +91,21 @@ static PRINTF(3, 4) void prinfo(bool *of,
 
 static void list_lines(struct gpiod_chip *chip)
 {
+	struct gpiod_line_iter *iter;
 	int direction, active_state;
-	struct gpiod_line_iter iter;
 	const char *name, *consumer;
 	struct gpiod_line *line;
 	unsigned int i, offset;
 	bool flag_printed, of;
 
+	iter = gpiod_line_iter_new(chip);
+	if (!iter)
+		die_perror("error creating line iterator");
+
 	printf("%s - %u lines:\n",
 	       gpiod_chip_name(chip), gpiod_chip_num_lines(chip));
 
-	gpiod_line_iter_init(&iter, chip);
-	gpiod_foreach_line(&iter, line) {
-		if (gpiod_line_iter_err(&iter))
-			die_perror("error retrieving info for line %u",
-				   gpiod_line_iter_last_offset(&iter));
-
+	gpiod_foreach_line(iter, line) {
 		offset = gpiod_line_offset(line);
 		name = gpiod_line_name(line);
 		consumer = gpiod_line_consumer(line);
@@ -125,12 +126,12 @@ static void list_lines(struct gpiod_chip *chip)
 			 : prinfo(&of, 12, "unused");
 		printf(" ");
 
-		prinfo(&of, 8, "%s ", direction == GPIOD_DIRECTION_INPUT
-						? "input" : "output");
+		prinfo(&of, 8, "%s ", direction == GPIOD_LINE_DIRECTION_INPUT
+							? "input" : "output");
 		prinfo(&of, 13, "%s ",
-		       active_state == GPIOD_ACTIVE_STATE_LOW
-						? "active-low"
-						: "active-high");
+		       active_state == GPIOD_LINE_ACTIVE_STATE_LOW
+							? "active-low"
+							: "active-high");
 
 		flag_printed = false;
 		for (i = 0; i < ARRAY_SIZE(flags); i++) {
@@ -148,6 +149,8 @@ static void list_lines(struct gpiod_chip *chip)
 
 		printf("\n");
 	}
+
+	gpiod_line_iter_free(iter);
 }
 
 int main(int argc, char **argv)
@@ -155,8 +158,6 @@ int main(int argc, char **argv)
 	struct gpiod_chip_iter *chip_iter;
 	struct gpiod_chip *chip;
 	int i, optc, opti;
-
-	set_progname(argv[0]);
 
 	for (;;) {
 		optc = getopt_long(argc, argv, shortopts, longopts, &opti);
@@ -185,13 +186,8 @@ int main(int argc, char **argv)
 		if (!chip_iter)
 			die_perror("error accessing GPIO chips");
 
-		gpiod_foreach_chip(chip_iter, chip) {
-			if (gpiod_chip_iter_err(chip_iter))
-				die_perror("error accessing gpiochip %s",
-				    gpiod_chip_iter_failed_chip(chip_iter));
-
+		gpiod_foreach_chip(chip_iter, chip)
 			list_lines(chip);
-		}
 
 		gpiod_chip_iter_free(chip_iter);
 	} else {

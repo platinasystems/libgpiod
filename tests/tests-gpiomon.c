@@ -1,13 +1,15 @@
 /*
- * Test cases for the gpiomon tool.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
  */
+
+/* Test cases for the gpiomon program. */
 
 #include "gpiod-test.h"
 
@@ -204,7 +206,7 @@ static void gpiomon_request_the_same_line_twice(void)
 	TEST_ASSERT_NULL(test_tool_stdout());
 	TEST_ASSERT_NOT_NULL(test_tool_stderr());
 	TEST_ASSERT_STR_CONTAINS(test_tool_stderr(),
-				 "error configuring GPIO line events");
+				 "error waiting for events");
 }
 TEST_DEFINE(gpiomon_request_the_same_line_twice,
 	    "tools: gpiomon - request the same line twice",
@@ -252,7 +254,7 @@ static void gpiomon_line_out_of_range(void)
 	TEST_ASSERT_NULL(test_tool_stdout());
 	TEST_ASSERT_NOT_NULL(test_tool_stderr());
 	TEST_ASSERT_STR_CONTAINS(test_tool_stderr(),
-				 "error retrieving GPIO line from chip");
+				 "error waiting for events");
 }
 TEST_DEFINE(gpiomon_line_out_of_range,
 	    "tools: gpiomon - line out of range",

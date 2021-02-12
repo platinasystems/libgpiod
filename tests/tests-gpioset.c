@@ -1,13 +1,15 @@
 /*
- * Test cases for the gpioset tool.
+ * This file is part of libgpiod.
  *
- * Copyright (C) 2017 Bartosz Golaszewski <bartekgola@gmail.com>
+ * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
  *
- * This library is free software; you can redistribute it and/or modify it
+ * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation; either version 2.1 of the License, or (at
  * your option) any later version.
  */
+
+/* Test cases for the gpioset program. */
 
 #include "gpiod-test.h"
 
@@ -38,8 +40,8 @@ static void gpioset_set_lines_and_exit(void)
 	offsets[6] = 6;
 	offsets[7] = 7;
 
-	rv = gpiod_simple_get_value_multiple(TEST_CONSUMER, test_chip_name(2),
-					     offsets, values, 8, false);
+	rv = gpiod_ctxless_get_value_multiple(test_chip_name(2), offsets,
+					      values, 8, false, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
 	TEST_ASSERT_EQ(values[0], 0);
@@ -79,8 +81,8 @@ static void gpioset_set_lines_and_exit_active_low(void)
 	offsets[6] = 6;
 	offsets[7] = 7;
 
-	rv = gpiod_simple_get_value_multiple(TEST_CONSUMER, test_chip_name(2),
-					     offsets, values, 8, false);
+	rv = gpiod_ctxless_get_value_multiple(test_chip_name(2), offsets,
+					      values, 8, false, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
 	TEST_ASSERT_EQ(values[0], 1);
@@ -120,8 +122,8 @@ static void gpioset_set_lines_and_exit_explicit_mode(void)
 	offsets[6] = 6;
 	offsets[7] = 7;
 
-	rv = gpiod_simple_get_value_multiple(TEST_CONSUMER, test_chip_name(2),
-					     offsets, values, 8, false);
+	rv = gpiod_ctxless_get_value_multiple(test_chip_name(2), offsets,
+					      values, 8, false, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
 	TEST_ASSERT_EQ(values[0], 0);
@@ -158,8 +160,8 @@ static void gpioset_set_some_lines_and_wait_for_enter(void)
 	offsets[3] = 6;
 	offsets[4] = 7;
 
-	rv = gpiod_simple_get_value_multiple(TEST_CONSUMER, test_chip_name(2),
-					     offsets, values, 5, false);
+	rv = gpiod_ctxless_get_value_multiple(test_chip_name(2), offsets,
+					      values, 5, false, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
 	TEST_ASSERT_EQ(values[0], 0);
@@ -197,10 +199,9 @@ static void gpioset_set_some_lines_and_wait_for_signal(void)
 		offsets[3] = 6;
 		offsets[4] = 7;
 
-		rv = gpiod_simple_get_value_multiple(TEST_CONSUMER,
-						     test_chip_name(2),
-						     offsets, values,
-						     5, false);
+		rv = gpiod_ctxless_get_value_multiple(test_chip_name(2),
+						      offsets, values,
+						      5, false, TEST_CONSUMER);
 		TEST_ASSERT_RET_OK(rv);
 
 		TEST_ASSERT_EQ(values[0], 0);
@@ -234,8 +235,8 @@ static void gpioset_set_some_lines_and_wait_time(void)
 	offsets[1] = 2;
 	offsets[2] = 5;
 
-	rv = gpiod_simple_get_value_multiple(TEST_CONSUMER, test_chip_name(0),
-					     offsets, values, 3, false);
+	rv = gpiod_ctxless_get_value_multiple(test_chip_name(0), offsets,
+					      values, 3, false, TEST_CONSUMER);
 	TEST_ASSERT_RET_OK(rv);
 
 	TEST_ASSERT_EQ(values[0], 1);
@@ -306,7 +307,7 @@ static void gpioset_sec_usec_without_time(void)
 	TEST_ASSERT_NULL(test_tool_stdout());
 	TEST_ASSERT_NOT_NULL(test_tool_stderr());
 	TEST_ASSERT_STR_CONTAINS(test_tool_stderr(),
-				 "can't specify seconds in this mode");
+				 "can't specify wait time in this mode");
 
 	test_tool_run("gpioset", "--mode=exit", "--usec=100",
 		      test_chip_name(0), "0=1", (char *)NULL);
@@ -317,7 +318,7 @@ static void gpioset_sec_usec_without_time(void)
 	TEST_ASSERT_NULL(test_tool_stdout());
 	TEST_ASSERT_NOT_NULL(test_tool_stderr());
 	TEST_ASSERT_STR_CONTAINS(test_tool_stderr(),
-				 "can't specify microseconds in this mode");
+				 "can't specify wait time in this mode");
 }
 TEST_DEFINE(gpioset_sec_usec_without_time,
 	    "tools: gpioset - using --sec/--usec with mode other than 'time'",
@@ -370,7 +371,7 @@ TEST_DEFINE(gpioset_invalid_offset,
 	    "tools: gpioset - invalid offset",
 	    0, { 4 });
 
-static void gpioset_daeminize_in_wrong_mode(void)
+static void gpioset_daemonize_in_wrong_mode(void)
 {
 	test_tool_run("gpioset", "--background",
 		      test_chip_name(0), "0=1", (char *)NULL);
@@ -383,6 +384,6 @@ static void gpioset_daeminize_in_wrong_mode(void)
 	TEST_ASSERT_STR_CONTAINS(test_tool_stderr(),
 				 "can't daemonize in this mode");
 }
-TEST_DEFINE(gpioset_daeminize_in_wrong_mode,
+TEST_DEFINE(gpioset_daemonize_in_wrong_mode,
 	    "tools: gpioset - daemonize in wrong mode",
 	    0, { 4 });
