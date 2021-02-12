@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT([libgpiod], 1.3)
+AC_INIT([libgpiod], 1.4.1)
 AC_SUBST(EXTRA_VERSION, [])
 
 AC_DEFINE_UNQUOTED([GPIOD_VERSION_STR],
@@ -32,7 +32,7 @@ AC_SUBST(VERSION_STR, [$PACKAGE_VERSION$EXTRA_VERSION])
 # NOTE: this version only applies to the core C library.
 AC_SUBST(ABI_VERSION, [3.1.1])
 # Have a separate ABI version for C++ bindings:
-AC_SUBST(ABI_CXX_VERSION, [1.1.0])
+AC_SUBST(ABI_CXX_VERSION, [1.3.0])
 
 AC_CONFIG_AUX_DIR([autostuff])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -107,13 +107,6 @@ then
 	AC_CHECK_HEADERS([sys/signalfd.h], [], [HEADER_NOT_FOUND_TOOLS([sys/signalfd.h])])
 fi
 
-AC_ARG_ENABLE([install-tests],
-	[AC_HELP_STRING([--enable-install-tests],
-		[enable install tests [default=no]])],
-	[if test "x$enableval" = xyes; then with_install_tests=true; with_tests=true; fi],
-	[with_install_tests=false])
-AM_CONDITIONAL([WITH_INSTALL_TESTS], [test "x$with_install_tests" = xtrue])
-
 AC_ARG_ENABLE([tests],
 	[AC_HELP_STRING([--enable-tests],
 		[enable libgpiod tests [default=no]])],
@@ -132,6 +125,10 @@ then
 	PKG_CHECK_MODULES([KMOD], [libkmod >= 18])
 	PKG_CHECK_MODULES([UDEV], [libudev >= 215])
 fi
+
+# ABI version for libgpiomockup (we need this since it can be installed if we
+# enable install-tests).
+AC_SUBST(ABI_MOCKUP_VERSION, [0.0.0])
 
 AC_ARG_ENABLE([bindings-cxx],
 	[AC_HELP_STRING([--enable-bindings-cxx],
@@ -187,6 +184,7 @@ AC_CONFIG_FILES([libgpiod.pc
 		 lib/Makefile
 		 tools/Makefile
 		 tests/Makefile
+		 tests/mockup/Makefile
 		 bindings/cxx/libgpiodcxx.pc
 		 bindings/Makefile
 		 bindings/cxx/Makefile
