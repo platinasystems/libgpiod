@@ -1,12 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 /* GPIO line test cases. */
@@ -17,7 +13,7 @@
 
 static void line_request_output(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line_0;
 	struct gpiod_line *line_1;
 	int status;
@@ -44,7 +40,7 @@ TEST_DEFINE(line_request_output,
 
 static void line_request_already_requested(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int status;
 
@@ -67,7 +63,7 @@ TEST_DEFINE(line_request_already_requested,
 
 static void line_consumer(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int status;
 
@@ -91,7 +87,7 @@ TEST_DEFINE(line_consumer,
 
 static void line_consumer_long_string(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int status;
 
@@ -118,8 +114,8 @@ TEST_DEFINE(line_consumer_long_string,
 
 static void line_request_bulk_output(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipA = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipB = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipA = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipB = NULL;
 	struct gpiod_line_bulk bulkB = GPIOD_LINE_BULK_INITIALIZER;
 	struct gpiod_line_bulk bulkA;
 	struct gpiod_line *lineA0;
@@ -204,8 +200,8 @@ TEST_DEFINE(line_request_bulk_output,
 
 static void line_request_bulk_different_chips(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipA = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipB = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipA = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipB = NULL;
 	struct gpiod_line_request_config req;
 	struct gpiod_line_bulk bulk;
 	struct gpiod_line *lineA0;
@@ -247,9 +243,47 @@ TEST_DEFINE(line_request_bulk_different_chips,
 	    "gpiod_line_request_bulk() - different chips",
 	    0, { 8, 8 });
 
+static void line_request_null_default_vals_for_output(void)
+{
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
+	struct gpiod_line_bulk bulk = GPIOD_LINE_BULK_INITIALIZER;
+	struct gpiod_line *line;
+	int rv, vals[3];
+
+	chip = gpiod_chip_open(test_chip_path(0));
+	TEST_ASSERT_NOT_NULL(chip);
+
+	line = gpiod_chip_get_line(chip, 0);
+	gpiod_line_bulk_add(&bulk, line);
+	line = gpiod_chip_get_line(chip, 1);
+	gpiod_line_bulk_add(&bulk, line);
+	line = gpiod_chip_get_line(chip, 2);
+	gpiod_line_bulk_add(&bulk, line);
+
+	rv = gpiod_line_request_bulk_output(&bulk, TEST_CONSUMER, NULL);
+	TEST_ASSERT_RET_OK(rv);
+
+	gpiod_line_release_bulk(&bulk);
+
+	rv = gpiod_line_request_bulk_input(&bulk, TEST_CONSUMER);
+	TEST_ASSERT_RET_OK(rv);
+
+	memset(vals, 0, sizeof(vals));
+
+	rv = gpiod_line_get_value_bulk(&bulk, vals);
+	TEST_ASSERT_RET_OK(rv);
+
+	TEST_ASSERT_EQ(vals[0], 0);
+	TEST_ASSERT_EQ(vals[1], 0);
+	TEST_ASSERT_EQ(vals[2], 0);
+}
+TEST_DEFINE(line_request_null_default_vals_for_output,
+	    "gpiod_line_request_bulk() - null default vals for output",
+	    0, { 8 });
+
 static void line_set_value(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int status;
 
@@ -273,8 +307,8 @@ TEST_DEFINE(line_set_value,
 
 static void line_get_value_different_chips(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipA = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chipB = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipA = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chipB = NULL;
 	struct gpiod_line *lineA1, *lineA2, *lineB1, *lineB2;
 	struct gpiod_line_bulk bulkA, bulkB, bulk;
 	int rv, vals[4];
@@ -389,7 +423,7 @@ TEST_DEFINE(line_find_unnamed_lines,
 
 static void line_direction(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int status;
 
@@ -417,7 +451,7 @@ TEST_DEFINE(line_direction,
 
 static void line_active_state(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int status;
 
@@ -447,7 +481,7 @@ TEST_DEFINE(line_active_state,
 
 static void line_misc_flags(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line_request_config config;
 	struct gpiod_line *line;
 	int status;
@@ -490,7 +524,7 @@ TEST_DEFINE(line_misc_flags,
 
 static void line_open_source_open_drain_input_invalid(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int rv;
 
@@ -516,7 +550,7 @@ TEST_DEFINE(line_open_source_open_drain_input_invalid,
 
 static void line_open_source_open_drain_simultaneously(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 	int rv;
 
@@ -539,7 +573,7 @@ TEST_DEFINE(line_open_source_open_drain_simultaneously,
 /* Verify that the reference counting of the line fd handle works correctly. */
 static void line_release_one_use_another(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line_bulk bulk;
 	struct gpiod_line *line1;
 	struct gpiod_line *line2;
@@ -577,7 +611,7 @@ TEST_DEFINE(line_release_one_use_another,
 
 static void line_null_consumer(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line_request_config config;
 	struct gpiod_line *line;
 	int rv;
@@ -614,7 +648,7 @@ TEST_DEFINE(line_null_consumer,
 
 static void line_empty_consumer(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line_request_config config;
 	struct gpiod_line *line;
 	int rv;
@@ -656,7 +690,7 @@ static void line_bulk_foreach(void)
 						  "gpio-mockup-A-2",
 						  "gpio-mockup-A-3" };
 
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line_bulk bulk = GPIOD_LINE_BULK_INITIALIZER;
 	struct gpiod_line *line, **lineptr;
 	int i;

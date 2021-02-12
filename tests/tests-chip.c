@@ -1,12 +1,8 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 /* Test cases for GPIO chip handling. */
@@ -18,7 +14,7 @@
 
 static void chip_open_good(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 
 	chip = gpiod_chip_open(test_chip_path(0));
 	TEST_ASSERT_NOT_NULL(chip);
@@ -53,7 +49,7 @@ TEST_DEFINE(chip_open_notty,
 
 static void chip_open_by_name_good(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 
 	chip = gpiod_chip_open_by_name(test_chip_name(0));
 	TEST_ASSERT_NOT_NULL(chip);
@@ -64,7 +60,7 @@ TEST_DEFINE(chip_open_by_name_good,
 
 static void chip_open_by_number_good(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 
 	chip = gpiod_chip_open_by_number(test_chip_num(0));
 	TEST_ASSERT_NOT_NULL(chip);
@@ -75,10 +71,10 @@ TEST_DEFINE(chip_open_by_number_good,
 
 static void chip_open_lookup(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip_by_label = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip_by_name = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip_by_path = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip_by_num = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip_by_label = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip_by_name = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip_by_path = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip_by_num = NULL;
 
 	chip_by_name = gpiod_chip_open_lookup(test_chip_name(1));
 	chip_by_path = gpiod_chip_open_lookup(test_chip_path(1));
@@ -102,7 +98,7 @@ TEST_DEFINE(chip_open_lookup,
 
 static void chip_open_by_label_good(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 
 	chip = gpiod_chip_open_by_label("gpio-mockup-D");
 	TEST_ASSERT_NOT_NULL(chip);
@@ -114,7 +110,7 @@ TEST_DEFINE(chip_open_by_label_good,
 
 static void chip_open_by_label_bad(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 
 	chip = gpiod_chip_open_by_label("nonexistent_gpio_chip");
 	TEST_ASSERT_NULL(chip);
@@ -126,9 +122,9 @@ TEST_DEFINE(chip_open_by_label_bad,
 
 static void chip_name(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip0 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip1 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip2 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip0 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip1 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip2 = NULL;
 
 	chip0 = gpiod_chip_open(test_chip_path(0));
 	chip1 = gpiod_chip_open(test_chip_path(1));
@@ -147,9 +143,9 @@ TEST_DEFINE(chip_name,
 
 static void chip_label(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip0 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip1 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip2 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip0 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip1 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip2 = NULL;
 
 	chip0 = gpiod_chip_open(test_chip_path(0));
 	chip1 = gpiod_chip_open(test_chip_path(1));
@@ -168,11 +164,11 @@ TEST_DEFINE(chip_label,
 
 static void chip_num_lines(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip0 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip1 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip2 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip3 = NULL;
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip4 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip0 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip1 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip2 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip3 = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip4 = NULL;
 
 	chip0 = gpiod_chip_open(test_chip_path(0));
 	chip1 = gpiod_chip_open(test_chip_path(1));
@@ -195,9 +191,69 @@ TEST_DEFINE(chip_num_lines,
 	    "gpiod_chip_num_lines()",
 	    0, { 1, 4, 8, 16, 32 });
 
+static void chip_get_lines(void)
+{
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
+	struct gpiod_line_bulk bulk;
+	unsigned int offsets[4];
+	struct gpiod_line *line;
+	int rv;
+
+	chip = gpiod_chip_open(test_chip_path(0));
+	TEST_ASSERT_NOT_NULL(chip);
+
+	offsets[0] = 1;
+	offsets[1] = 3;
+	offsets[2] = 4;
+	offsets[3] = 7;
+
+	rv = gpiod_chip_get_lines(chip, offsets, 4, &bulk);
+	TEST_ASSERT_RET_OK(rv);
+
+	TEST_ASSERT_EQ(gpiod_line_bulk_num_lines(&bulk), 4);
+	line = gpiod_line_bulk_get_line(&bulk, 0);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 1);
+	line = gpiod_line_bulk_get_line(&bulk, 1);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 3);
+	line = gpiod_line_bulk_get_line(&bulk, 2);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 4);
+	line = gpiod_line_bulk_get_line(&bulk, 3);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 7);
+}
+TEST_DEFINE(chip_get_lines,
+	    "gpiod_chip_get_lines()",
+	    0, { 16 });
+
+static void chip_get_all_lines(void)
+{
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
+	struct gpiod_line_bulk bulk;
+	struct gpiod_line *line;
+	int rv;
+
+	chip = gpiod_chip_open(test_chip_path(0));
+	TEST_ASSERT_NOT_NULL(chip);
+
+	rv = gpiod_chip_get_all_lines(chip, &bulk);
+	TEST_ASSERT_RET_OK(rv);
+
+	TEST_ASSERT_EQ(gpiod_line_bulk_num_lines(&bulk), 4);
+	line = gpiod_line_bulk_get_line(&bulk, 0);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 0);
+	line = gpiod_line_bulk_get_line(&bulk, 1);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 1);
+	line = gpiod_line_bulk_get_line(&bulk, 2);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 2);
+	line = gpiod_line_bulk_get_line(&bulk, 3);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 3);
+}
+TEST_DEFINE(chip_get_all_lines,
+	    "gpiod_chip_get_all_lines()",
+	    0, { 4 });
+
 static void chip_find_line_good(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 
 	chip = gpiod_chip_open(test_chip_path(1));
@@ -214,7 +270,7 @@ TEST_DEFINE(chip_find_line_good,
 
 static void chip_find_line_not_found(void)
 {
-	TEST_CLEANUP(test_close_chip) struct gpiod_chip *chip = NULL;
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
 	struct gpiod_line *line;
 
 	chip = gpiod_chip_open(test_chip_path(1));
@@ -226,4 +282,55 @@ static void chip_find_line_not_found(void)
 }
 TEST_DEFINE(chip_find_line_not_found,
 	    "gpiod_chip_find_line() - not found",
+	    TEST_FLAG_NAMED_LINES, { 8, 8, 8 });
+
+static void chip_find_lines_good(void)
+{
+	static const char *names[] = { "gpio-mockup-B-3",
+				       "gpio-mockup-B-6",
+				       "gpio-mockup-B-7",
+				       NULL };
+
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
+	struct gpiod_line_bulk bulk;
+	struct gpiod_line *line;
+	int rv;
+
+	chip = gpiod_chip_open(test_chip_path(1));
+	TEST_ASSERT_NOT_NULL(chip);
+
+	rv = gpiod_chip_find_lines(chip, names, &bulk);
+	TEST_ASSERT_RET_OK(rv);
+	TEST_ASSERT_EQ(gpiod_line_bulk_num_lines(&bulk), 3);
+	line = gpiod_line_bulk_get_line(&bulk, 0);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 3);
+	line = gpiod_line_bulk_get_line(&bulk, 1);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 6);
+	line = gpiod_line_bulk_get_line(&bulk, 2);
+	TEST_ASSERT_EQ(gpiod_line_offset(line), 7);
+}
+TEST_DEFINE(chip_find_lines_good,
+	    "gpiod_chip_find_lines() - good",
+	    TEST_FLAG_NAMED_LINES, { 8, 8, 8 });
+
+static void chip_find_lines_not_found(void)
+{
+	static const char *names[] = { "gpio-mockup-B-3",
+				       "nonexistent",
+				       "gpio-mockup-B-7",
+				       NULL };
+
+	TEST_CLEANUP_CHIP struct gpiod_chip *chip = NULL;
+	struct gpiod_line_bulk bulk;
+	int rv;
+
+	chip = gpiod_chip_open(test_chip_path(1));
+	TEST_ASSERT_NOT_NULL(chip);
+
+	rv = gpiod_chip_find_lines(chip, names, &bulk);
+	TEST_ASSERT_EQ(rv, -1);
+	TEST_ASSERT_ERRNO_IS(ENOENT);
+}
+TEST_DEFINE(chip_find_lines_not_found,
+	    "gpiod_chip_find_lines() - not found",
 	    TEST_FLAG_NAMED_LINES, { 8, 8, 8 });

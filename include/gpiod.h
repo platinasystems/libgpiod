@@ -1,12 +1,8 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later */
 /*
  * This file is part of libgpiod.
  *
  * Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation; either version 2.1 of the License, or (at
- * your option) any later version.
  */
 
 #ifndef __LIBGPIOD_GPIOD_H__
@@ -47,6 +43,7 @@ struct gpiod_chip;
 struct gpiod_line;
 struct gpiod_chip_iter;
 struct gpiod_line_iter;
+struct gpiod_line_bulk;
 
 /**
  * @defgroup __common__ Common helper macros
@@ -155,7 +152,7 @@ int gpiod_ctxless_set_value_multiple(const char *device,
  * @brief Event types that can be passed to the ctxless event callback.
  */
 enum {
-	GPIOD_CTXLESS_EVENT_CB_TIMEOUT,
+	GPIOD_CTXLESS_EVENT_CB_TIMEOUT = 1,
 	/**< Waiting for events timed out. */
 	GPIOD_CTXLESS_EVENT_CB_RISING_EDGE,
 	/**< Rising edge event occured. */
@@ -396,6 +393,27 @@ struct gpiod_line *
 gpiod_chip_get_line(struct gpiod_chip *chip, unsigned int offset) GPIOD_API;
 
 /**
+ * @brief Retrieve a set of lines and store them in a line bulk object.
+ * @param chip The GPIO chip object.
+ * @param offsets Array of offsets of lines to retrieve.
+ * @param num_offsets Number of lines to retrieve.
+ * @param bulk Line bulk object in which to store the line handles.
+ * @return 0 on success, -1 on error.
+ */
+int gpiod_chip_get_lines(struct gpiod_chip *chip,
+			 unsigned int *offsets, unsigned int num_offsets,
+			 struct gpiod_line_bulk *bulk) GPIOD_API;
+
+/**
+ * @brief Retrieve all lines exposed by a chip and store them in a bulk object.
+ * @param chip The GPIO chip object.
+ * @param bulk Line bulk object in which to store the line handles.
+ * @return 0 on success, -1 on error.
+ */
+int gpiod_chip_get_all_lines(struct gpiod_chip *chip,
+			     struct gpiod_line_bulk *bulk) GPIOD_API;
+
+/**
  * @brief Find a GPIO line by name among lines associated with given GPIO chip.
  * @param chip The GPIO chip object.
  * @param name The name of the GPIO line.
@@ -406,6 +424,19 @@ gpiod_chip_get_line(struct gpiod_chip *chip, unsigned int offset) GPIOD_API;
  */
 struct gpiod_line *
 gpiod_chip_find_line(struct gpiod_chip *chip, const char *name) GPIOD_API;
+
+/**
+ * @brief Find a set of GPIO lines by names among lines exposed by this chip.
+ * @param chip The GPIO chip object.
+ * @param names Array of pointers to C-strings containing the names of the
+ *              lines to lookup. Must end with a NULL-pointer.
+ * @param bulk Line bulk object in which the located lines will be stored.
+ * @return 0 if all lines were located, -1 on error.
+ * @note If at least one line from the list could not be found among the lines
+ *       exposed by this chip, the function sets errno to ENOENT.
+ */
+int gpiod_chip_find_lines(struct gpiod_chip *chip, const char **names,
+			  struct gpiod_line_bulk *bulk) GPIOD_API;
 
 /**
  * @}
@@ -531,7 +562,7 @@ gpiod_line_bulk_num_lines(struct gpiod_line_bulk *bulk)
  * @brief Possible direction settings.
  */
 enum {
-	GPIOD_LINE_DIRECTION_INPUT,
+	GPIOD_LINE_DIRECTION_INPUT = 1,
 	/**< Direction is input - we're reading the state of a GPIO line. */
 	GPIOD_LINE_DIRECTION_OUTPUT,
 	/**< Direction is output - we're driving the GPIO line. */
@@ -541,7 +572,7 @@ enum {
  * @brief Possible active state settings.
  */
 enum {
-	GPIOD_LINE_ACTIVE_STATE_HIGH,
+	GPIOD_LINE_ACTIVE_STATE_HIGH = 1,
 	/**< The active state of a GPIO is active-high. */
 	GPIOD_LINE_ACTIVE_STATE_LOW,
 	/**< The active state of a GPIO is active-low. */
@@ -649,7 +680,7 @@ bool gpiod_line_needs_update(struct gpiod_line *line) GPIOD_API;
  * @brief Available types of requests.
  */
 enum {
-	GPIOD_LINE_REQUEST_DIRECTION_AS_IS,
+	GPIOD_LINE_REQUEST_DIRECTION_AS_IS = 1,
 	/**< Request the line(s), but don't change current direction. */
 	GPIOD_LINE_REQUEST_DIRECTION_INPUT,
 	/**< Request the line(s) for reading the GPIO line state. */
@@ -1019,7 +1050,7 @@ int gpiod_line_set_value_bulk(struct gpiod_line_bulk *bulk,
  * @brief Event types.
  */
 enum {
-	GPIOD_LINE_EVENT_RISING_EDGE,
+	GPIOD_LINE_EVENT_RISING_EDGE = 1,
 	/**< Rising edge event. */
 	GPIOD_LINE_EVENT_FALLING_EDGE,
 	/**< Falling edge event. */
@@ -1277,7 +1308,7 @@ gpiod_line_iter_next(struct gpiod_line_iter *iter) GPIOD_API;
  */
 
 /**
- * @brief Get the version of the library as a human-readable string.
+ * @brief Get the API version of the library as a human-readable string.
  * @return Human-readable string containing the library version.
  */
 const char *gpiod_version_string(void) GPIOD_API;
