@@ -3,12 +3,12 @@
 #
 # This file is part of libgpiod.
 #
-# Copyright (C) 2017-2018 Bartosz Golaszewski <bartekgola@gmail.com>
+# Copyright (C) 2017-2019 Bartosz Golaszewski <bartekgola@gmail.com>
 #
 
 AC_PREREQ(2.61)
 
-AC_INIT([libgpiod], 1.2)
+AC_INIT([libgpiod], 1.3)
 AC_SUBST(EXTRA_VERSION, [])
 
 AC_DEFINE_UNQUOTED([GPIOD_VERSION_STR],
@@ -30,9 +30,9 @@ AC_SUBST(VERSION_STR, [$PACKAGE_VERSION$EXTRA_VERSION])
 #
 # Define the libtool version as (C.R.A):
 # NOTE: this version only applies to the core C library.
-AC_SUBST(ABI_VERSION, [3.0.1])
+AC_SUBST(ABI_VERSION, [3.1.1])
 # Have a separate ABI version for C++ bindings:
-AC_SUBST(ABI_CXX_VERSION, [1.0.0])
+AC_SUBST(ABI_CXX_VERSION, [1.1.0])
 
 AC_CONFIG_AUX_DIR([autostuff])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -47,7 +47,7 @@ AC_ARG_VAR([PYTHON_CPPFLAGS],
 AC_ARG_VAR([PYTHON_LIBS],
 	[Libraries to link into Python extensions [default: auto-detect]])
 
-AC_CONFIG_SRCDIR([src])
+AC_CONFIG_SRCDIR([lib])
 AC_CONFIG_HEADER([config.h])
 
 AC_DEFINE([_GNU_SOURCE], [], [We want GNU extensions])
@@ -87,14 +87,7 @@ AC_CHECK_HEADERS([linux/gpio.h], [], [HEADER_NOT_FOUND_LIB([linux/gpio.h])])
 AC_ARG_ENABLE([tools],
 	[AC_HELP_STRING([--enable-tools],
 		[enable libgpiod command-line tools [default=no]])],
-	[
-		if test "x$enableval" = xyes
-		then
-			with_tools=true
-		else
-			with_tools=false
-		fi
-	],
+	[if test "x$enableval" = xyes; then with_tools=true; fi],
 	[with_tools=false])
 AM_CONDITIONAL([WITH_TOOLS], [test "x$with_tools" = xtrue])
 
@@ -110,20 +103,21 @@ then
 	AC_CHECK_FUNC([basename], [], [FUNC_NOT_FOUND_TOOLS([basename])])
 	AC_CHECK_FUNC([daemon], [], [FUNC_NOT_FOUND_TOOLS([daemon])])
 	AC_CHECK_FUNC([signalfd], [], [FUNC_NOT_FOUND_TOOLS([signalfd])])
+	AC_CHECK_FUNC([setlinebuf], [], [FUNC_NOT_FOUND_TOOLS([setlinebuf])])
 	AC_CHECK_HEADERS([sys/signalfd.h], [], [HEADER_NOT_FOUND_TOOLS([sys/signalfd.h])])
 fi
+
+AC_ARG_ENABLE([install-tests],
+	[AC_HELP_STRING([--enable-install-tests],
+		[enable install tests [default=no]])],
+	[if test "x$enableval" = xyes; then with_install_tests=true; with_tests=true; fi],
+	[with_install_tests=false])
+AM_CONDITIONAL([WITH_INSTALL_TESTS], [test "x$with_install_tests" = xtrue])
 
 AC_ARG_ENABLE([tests],
 	[AC_HELP_STRING([--enable-tests],
 		[enable libgpiod tests [default=no]])],
-	[
-		if test "x$enableval" = xyes
-		then
-			with_tests=true
-		else
-			with_tests=false
-		fi
-	],
+	[if test "x$enableval" = xyes; then with_tests=true; fi],
 	[with_tests=false])
 AM_CONDITIONAL([WITH_TESTS], [test "x$with_tests" = xtrue])
 
@@ -142,14 +136,7 @@ fi
 AC_ARG_ENABLE([bindings-cxx],
 	[AC_HELP_STRING([--enable-bindings-cxx],
 		[enable C++ bindings [default=no]])],
-	[
-		if test "x$enableval" = xyes
-		then
-			with_bindings_cxx=true
-		else
-			with_bindings_cxx=false
-		fi
-	],
+	[if test "x$enableval" = xyes; then with_bindings_cxx=true; fi],
 	[with_bindings_cxx=false])
 AM_CONDITIONAL([WITH_BINDINGS_CXX], [test "x$with_bindings_cxx" = xtrue])
 
@@ -163,14 +150,7 @@ fi
 AC_ARG_ENABLE([bindings-python],
 	[AC_HELP_STRING([--enable-bindings-python],
 		[enable python3 bindings [default=no]])],
-	[
-		if test "x$enableval" = xyes
-		then
-			with_bindings_python=true
-		else
-			with_bindings_python=false
-		fi
-	],
+	[if test "x$enableval" = xyes; then with_bindings_python=true; fi],
 	[with_bindings_python=false])
 AM_CONDITIONAL([WITH_BINDINGS_PYTHON], [test "x$with_bindings_python" = xtrue])
 
@@ -191,18 +171,28 @@ then
 	AC_MSG_NOTICE([doxygen not found - documentation cannot be generated])
 fi
 
+if test "x$cross_compiling" = xno
+then
+	AC_CHECK_PROG([has_help2man], [help2man], [true], [false])
+fi
+AM_CONDITIONAL([WITH_MANPAGES], [test "x$has_help2man" = xtrue])
+if test "x$has_help2man" = xfalse
+then
+	AC_MSG_NOTICE([help2man not found - man pages cannot be generated automatically])
+fi
+
 AC_CONFIG_FILES([libgpiod.pc
 		 Makefile
 		 include/Makefile
-		 src/Makefile
-		 src/lib/Makefile
-		 src/tools/Makefile
+		 lib/Makefile
+		 tools/Makefile
 		 tests/Makefile
 		 bindings/cxx/libgpiodcxx.pc
 		 bindings/Makefile
 		 bindings/cxx/Makefile
 		 bindings/cxx/examples/Makefile
 		 bindings/python/Makefile
-		 bindings/python/examples/Makefile])
+		 bindings/python/examples/Makefile
+		 man/Makefile])
 
 AC_OUTPUT
