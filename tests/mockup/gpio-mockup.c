@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <libkmod.h>
 #include <libudev.h>
+#include <linux/version.h>
 #include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +19,11 @@
 #include "gpio-mockup.h"
 
 #define EXPORT			__attribute__((visibility("default")))
-
-static const unsigned int min_kern_major = 5;
-static const unsigned int min_kern_minor = 1;
-static const unsigned int min_kern_release = 0;
+/*
+ * The gpio-mockup features (including the debugfs interface) we're using
+ * in this library have first been released in the linux kernel version below.
+ */
+#define MIN_KERNEL_VERSION	KERNEL_VERSION(5, 1, 0)
 
 struct gpio_mockup_chip {
 	char *name;
@@ -60,29 +62,12 @@ static bool check_kernel_version(void)
 		return false;
 	}
 
-	if (major < min_kern_major) {
-		goto bad_version;
-	} else if (major > min_kern_major) {
-		goto good_version;
-	} else {
-		if (minor < min_kern_minor) {
-			goto bad_version;
-		} else if (minor > min_kern_minor) {
-			goto good_version;
-		} else {
-			if (release < min_kern_release)
-				goto bad_version;
-			else
-				goto good_version;
-		}
+	if (KERNEL_VERSION(major, minor, release) < MIN_KERNEL_VERSION) {
+		errno = EOPNOTSUPP;
+		return false;
 	}
 
-good_version:
 	return true;
-
-bad_version:
-	errno = EOPNOTSUPP;
-	return false;
 }
 
 EXPORT struct gpio_mockup *gpio_mockup_new(void)
@@ -127,8 +112,8 @@ EXPORT struct gpio_mockup *gpio_mockup_new(void)
 	if (rv)
 		goto err_unref_module;
 
-	/* We need to chech that the gpio-mockup debugfs directory exists. */
-	rv = access("/sys/kernel/debug/gpio-mockup", R_OK);
+	/* We need to check that the gpio-mockup debugfs directory exists. */
+	rv = access("/sys/kernel/debug/gpio-mockup", R_OK | W_OK);
 	if (rv)
 		goto err_unref_module;
 
@@ -166,7 +151,7 @@ EXPORT void gpio_mockup_unref(struct gpio_mockup *ctx)
 }
 
 static char *make_module_param_string(unsigned int num_chips,
-				      unsigned int *num_lines, int flags)
+				      const unsigned int *num_lines, int flags)
 {
 	char *params, *new;
 	unsigned int i;
@@ -251,7 +236,7 @@ static struct gpio_mockup_chip *make_chip(const char *sysname,
 }
 
 EXPORT int gpio_mockup_probe(struct gpio_mockup *ctx, unsigned int num_chips,
-			     unsigned int *chip_sizes, int flags)
+			     const unsigned int *chip_sizes, int flags)
 {
 	const char *devpath, *devnode, *sysname, *action;
 	struct gpio_mockup_chip *chip;
@@ -348,7 +333,7 @@ EXPORT int gpio_mockup_probe(struct gpio_mockup *ctx, unsigned int num_chips,
 	/*
 	 * We can't assume that the order in which the mockup gpiochip
 	 * devices are created will be deterministic, yet we want the
-	 * index passed to the test_chip_*() functions to correspond with the
+	 * index passed to the test_chip_*() functions to correspond to the
 	 * order in which the chips were defined in the TEST_DEFINE()
 	 * macro.
 	 *
@@ -395,13 +380,26 @@ EXPORT int gpio_mockup_remove(struct gpio_mockup *ctx)
 	return 0;
 }
 
-EXPORT const char *
-gpio_mockup_chip_name(struct gpio_mockup *ctx, unsigned int idx)
+static bool index_valid(struct gpio_mockup *ctx, unsigned int idx)
 {
 	if (!ctx->chips) {
 		errno = ENODEV;
-		return NULL;
+		return false;
 	}
+
+	if (idx >= ctx->num_chips) {
+		errno = EINVAL;
+		return false;
+	}
+
+	return true;
+}
+
+EXPORT const char *
+gpio_mockup_chip_name(struct gpio_mockup *ctx, unsigned int idx)
+{
+	if (!index_valid(ctx, idx))
+		return NULL;
 
 	return ctx->chips[idx]->name;
 }
@@ -409,20 +407,16 @@ gpio_mockup_chip_name(struct gpio_mockup *ctx, unsigned int idx)
 EXPORT const char *
 gpio_mockup_chip_path(struct gpio_mockup *ctx, unsigned int idx)
 {
-	if (!ctx->chips) {
-		errno = ENODEV;
+	if (!index_valid(ctx, idx))
 		return NULL;
-	}
 
 	return ctx->chips[idx]->path;
 }
 
 EXPORT int gpio_mockup_chip_num(struct gpio_mockup *ctx, unsigned int idx)
 {
-	if (!ctx->chips) {
-		errno = ENODEV;
+	if (!index_valid(ctx, idx))
 		return -1;
-	}
 
 	return ctx->chips[idx]->num;
 }
@@ -452,10 +446,8 @@ EXPORT int gpio_mockup_get_value(struct gpio_mockup *ctx,
 	char buf;
 	int fd;
 
-	if (!ctx->chips) {
-		errno = ENODEV;
+	if (!index_valid(ctx, chip_idx))
 		return -1;
-	}
 
 	fd = debugfs_open(ctx->chips[chip_idx]->num, line_offset, O_RDONLY);
 	if (fd < 0)
@@ -485,10 +477,8 @@ EXPORT int gpio_mockup_set_pull(struct gpio_mockup *ctx,
 	ssize_t wr;
 	int fd;
 
-	if (!ctx->chips) {
-		errno = ENODEV;
+	if (!index_valid(ctx, chip_idx))
 		return -1;
-	}
 
 	fd = debugfs_open(ctx->chips[chip_idx]->num, line_offset, O_WRONLY);
 	if (fd < 0)

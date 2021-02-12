@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.61)
 
-AC_INIT([libgpiod], 1.4.1)
+AC_INIT([libgpiod], 1.5.1)
 AC_SUBST(EXTRA_VERSION, [])
 
 AC_DEFINE_UNQUOTED([GPIOD_VERSION_STR],
@@ -30,9 +30,9 @@ AC_SUBST(VERSION_STR, [$PACKAGE_VERSION$EXTRA_VERSION])
 #
 # Define the libtool version as (C.R.A):
 # NOTE: this version only applies to the core C library.
-AC_SUBST(ABI_VERSION, [3.1.1])
+AC_SUBST(ABI_VERSION, [4.1.2])
 # Have a separate ABI version for C++ bindings:
-AC_SUBST(ABI_CXX_VERSION, [1.3.0])
+AC_SUBST(ABI_CXX_VERSION, [2.0.1])
 
 AC_CONFIG_AUX_DIR([autostuff])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -70,6 +70,12 @@ AC_DEFUN([FUNC_NOT_FOUND_LIB],
 AC_DEFUN([HEADER_NOT_FOUND_LIB],
 	[ERR_NOT_FOUND([$1 header], [the library])])
 
+AC_DEFUN([HEADER_NOT_FOUND_TESTS],
+	[ERR_NOT_FOUND([$1 header], [the test suite])])
+
+AC_DEFUN([HEADER_NOT_FOUND_CXX],
+	[ERR_NOT_FOUND([$1 header], [C++ bindings])])
+
 # This is always checked (library needs this)
 AC_HEADER_STDC
 AC_FUNC_MALLOC
@@ -83,6 +89,15 @@ AC_CHECK_HEADERS([dirent.h], [], [HEADER_NOT_FOUND_LIB([dirent.h])])
 AC_CHECK_HEADERS([sys/poll.h], [], [HEADER_NOT_FOUND_LIB([sys/poll.h])])
 AC_CHECK_HEADERS([sys/sysmacros.h], [], [HEADER_NOT_FOUND_LIB([sys/sysmacros.h])])
 AC_CHECK_HEADERS([linux/gpio.h], [], [HEADER_NOT_FOUND_LIB([linux/gpio.h])])
+AC_CHECK_HEADERS([linux/version.h], [], [HEADER_NOT_FOUND_LIB([linux/version.h])])
+
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+#include <linux/version.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0)
+#error
+#endif
+)],
+[], [AC_MSG_ERROR(["libgpiod needs linux headers version >= v5.5.0"])])
 
 AC_ARG_ENABLE([tools],
 	[AC_HELP_STRING([--enable-tools],
@@ -119,16 +134,27 @@ AC_DEFUN([FUNC_NOT_FOUND_TESTS],
 
 if test "x$with_tests" = xtrue
 then
+	# For libgpiomockup
 	AC_CHECK_FUNC([qsort], [], [FUNC_NOT_FOUND_TESTS([qsort])])
-	AC_CHECK_FUNC([regexec], [], [FUNC_NOT_FOUND_TESTS([regexec])])
-
 	PKG_CHECK_MODULES([KMOD], [libkmod >= 18])
 	PKG_CHECK_MODULES([UDEV], [libudev >= 215])
+
+	# For core library tests
+	PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.50])
+
+	if test "x$with_tools" = xtrue
+	then
+		AC_CHECK_PROG([has_bats], [bats], [true], [false])
+		if test "x$has_bats" = "xflase"
+		then
+			AC_MSG_NOTICE(["bats not found - gpio-tools tests cannot be run])
+		fi
+	fi
 fi
 
 # ABI version for libgpiomockup (we need this since it can be installed if we
 # enable install-tests).
-AC_SUBST(ABI_MOCKUP_VERSION, [0.0.0])
+AC_SUBST(ABI_MOCKUP_VERSION, [0.1.0])
 
 AC_ARG_ENABLE([bindings-cxx],
 	[AC_HELP_STRING([--enable-bindings-cxx],
@@ -142,6 +168,15 @@ then
 	AC_LIBTOOL_CXX
 	# This needs autoconf-archive
 	AX_CXX_COMPILE_STDCXX_11([ext], [mandatory])
+
+	if test "x$with_tests" = xtrue
+	then
+		PKG_CHECK_MODULES([CATCH2], [catch2],, [
+			AC_LANG_PUSH([C++])
+			AC_CHECK_HEADERS([catch2/catch.hpp], [], [HEADER_NOT_FOUND_CXX([catch2/catch.hpp])])
+			AC_LANG_POP([C++])
+		])
+	fi
 fi
 
 AC_ARG_ENABLE([bindings-python],
@@ -155,6 +190,11 @@ if test "x$with_bindings_python" = xtrue
 then
 	AM_PATH_PYTHON([3.0], [],
 		[AC_MSG_ERROR([python3 not found - needed for python bindings])])
+	AC_CHECK_PROG([has_python_config], [python3-config], [true], [false])
+	if test "x$has_python_config" = xfalse
+	then
+		AC_MSG_ERROR([python3-config not found - needed for python bindings])
+	fi
 	AS_IF([test -z "$PYTHON_CPPFLAGS"],
 		[AC_SUBST(PYTHON_CPPFLAGS, [`$PYTHON-config --includes`])])
 	AS_IF([test -z "$PYTHON_LIBS"],
@@ -178,10 +218,10 @@ then
 	AC_MSG_NOTICE([help2man not found - man pages cannot be generated automatically])
 fi
 
-AC_CONFIG_FILES([libgpiod.pc
-		 Makefile
+AC_CONFIG_FILES([Makefile
 		 include/Makefile
 		 lib/Makefile
+		 lib/libgpiod.pc
 		 tools/Makefile
 		 tests/Makefile
 		 tests/mockup/Makefile
@@ -189,8 +229,10 @@ AC_CONFIG_FILES([libgpiod.pc
 		 bindings/Makefile
 		 bindings/cxx/Makefile
 		 bindings/cxx/examples/Makefile
+		 bindings/cxx/tests/Makefile
 		 bindings/python/Makefile
 		 bindings/python/examples/Makefile
+		 bindings/python/tests/Makefile
 		 man/Makefile])
 
 AC_OUTPUT

@@ -3,6 +3,9 @@
 /* Full library version string. */
 #undef GPIOD_VERSION_STR
 
+/* Define to 1 if you have the <catch2/catch.hpp> header file. */
+#undef HAVE_CATCH2_CATCH_HPP
+
 /* define if the compiler supports basic C++11 syntax */
 #undef HAVE_CXX11
 
@@ -20,6 +23,9 @@
 
 /* Define to 1 if you have the <linux/gpio.h> header file. */
 #undef HAVE_LINUX_GPIO_H
+
+/* Define to 1 if you have the <linux/version.h> header file. */
+#undef HAVE_LINUX_VERSION_H
 
 /* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
