@@ -111,7 +111,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = Doxyfile
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -170,8 +170,9 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = include lib tools man tests bindings
-am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/autostuff/ar-lib $(top_srcdir)/autostuff/compile \
+am__DIST_COMMON = $(srcdir)/Doxyfile.in $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/autostuff/ar-lib \
+	$(top_srcdir)/autostuff/compile \
 	$(top_srcdir)/autostuff/config.guess \
 	$(top_srcdir)/autostuff/config.sub \
 	$(top_srcdir)/autostuff/install-sh \
@@ -435,6 +436,8 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
+@HAS_DOXYGEN_TRUE@Doxyfile: $(top_builddir)/config.status $(srcdir)/Doxyfile.in
+@HAS_DOXYGEN_TRUE@	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -870,10 +873,8 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
-@HAS_DOXYGEN_TRUE@doc:
-@HAS_DOXYGEN_TRUE@	@(cat Doxyfile; \
-@HAS_DOXYGEN_TRUE@		echo PROJECT_NUMBER = $(VERSION_STR); \
-@HAS_DOXYGEN_TRUE@		echo INPUT += bindings/cxx/gpiod.hpp) | doxygen -
+@HAS_DOXYGEN_TRUE@doc: Doxyfile
+@HAS_DOXYGEN_TRUE@	@doxygen Doxyfile
 @HAS_DOXYGEN_TRUE@.PHONY: doc
 
 @HAS_DOXYGEN_TRUE@clean-local:

@@ -19,12 +19,16 @@ namespace gpiod {
 
 class line;
 class line_bulk;
-class line_event;
 class line_iter;
 class chip_iter;
+struct line_event;
 
 /**
- * @defgroup __gpiod_cxx__ C++ bindings
+ * @file gpiod.hpp
+ */
+
+/**
+ * @defgroup gpiod_cxx C++ bindings
  * @{
  */
 
@@ -541,7 +545,6 @@ GPIOD_API line find_line(const ::std::string& name);
  */
 struct line_event
 {
-
 	/**
 	 * @brief Possible event types.
 	 */
@@ -660,7 +663,7 @@ public:
 	 *                     output direction requests.
 	 */
 	GPIOD_API void request(const line_request& config,
-			       const std::vector<int> default_vals = std::vector<int>()) const;
+			       const ::std::vector<int> default_vals = ::std::vector<int>()) const;
 
 	/**
 	 * @brief Release all lines held by this object.
@@ -690,7 +693,7 @@ public:
 	 *               Only relevant for output direction requests.
 	 */
 	GPIOD_API void set_config(int direction, ::std::bitset<32> flags,
-				  const ::std::vector<int> values = std::vector<int>()) const;
+				  const ::std::vector<int> values = ::std::vector<int>()) const;
 
 	/**
 	 * @brief Set configuration flags of all lines held by this object.

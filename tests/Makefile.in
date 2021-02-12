@@ -390,7 +390,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = mockup
 AM_CFLAGS = -I$(top_srcdir)/include/ -I$(top_srcdir)/tests/mockup/ \
-	-include $(top_builddir)/config.h -Wall -Wextra -g \
+	-include $(top_builddir)/config.h -Wall -Wextra -g -std=gnu89 \
 	$(GLIB_CFLAGS) -DG_LOG_DOMAIN=\"gpiod-test\"
 AM_LDFLAGS = -pthread
 LDADD = $(top_builddir)/lib/libgpiod.la \
